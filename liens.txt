@@ -1,0 +1,15 @@
+RTE historique indicateurs
+
+https://www.rte-france.com/donnees-publications/eco2mix-donnees-temps-reel/telecharger-indicateurs
+
+open meteo forecasts
+
+https://open-meteo.com/en/docs?forecast_days=1
+
+open meteo historicals
+
+https://open-meteo.com/en/docs/historical-weather-api?start_date=2024-01-01&end_date=2024-12-31&timezone=auto&latitude=44&longitude=
+
+RTE API (Temps réel & Hist) : 
+
+https://data.rte-france.com/catalog/-/api/consumption/Consumption/v1.2
