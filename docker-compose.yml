@@ -2,12 +2,12 @@ services:
     minio:
         image: minio/minio:latest
         container_name: minio-wattcast
+        environment:
+            MINIO_ROOT_USER: admin
+            MINIO_ROOT_PASSWORD: miniopassword
         ports:
             - "9000:9000"
             - "9001:9001"
-        environment:
-            MINIO_ROOT_USER: minioadmin
-            MINIO_ROOT_PASSWORD: minioadminpassword
         volumes:
             - minio_data:/data
         command: server /data --console-address ":9001"
@@ -16,18 +16,50 @@ services:
     init-buckets:
         image: minio/mc:latest
         depends_on:
-            - minio-wattcast
+            - minio
         entrypoint: >
-            /bin/sh -c " until /usr/bin/mc alias set local http://minio:9000 minioadmin minioadminpassword; do
+            /bin/sh -c " until /usr/bin/mc alias set local http://minio:9000 admin miniopassword; do
               echo 'En attente du démarrage de MinIO...';
               sleep 1;
             done; /usr/bin/mc mb local/bucket-silver --ignore-existing; /usr/bin/mc mb local/bucket-bronze --ignore-existing; exit 0; "
 
     postgres:
-        image: postgres/postgres:latest
+        image: postgres:17
         container_name: postgres-wattcast
+        environment:
+                    POSTGRES_USER: admin
+                    POSTGRES_PASSWORD: postgrespassword
+                    POSTGRES_DB: wattcast_db
         ports:
-            - ""
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        restart: unless-stopped
+
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin-wattcast
+        environment:
+                    PGADMIN_DEFAULT_EMAIL: admin@admin.com
+                    PGADMIN_DEFAULT_PASSWORD: admin
+        ports:
+          - "5050:80"
+        volumes:
+          - pgadmin_data:/var/lib/pgadmin
+        depends_on:
+          -  postgres
+
+    redis:
+        image: redis:latest
+        container_name: redis-wattcast
+        ports:
+          - "6379:6379"
+        volumes:
+          - redis_data:/data
+        restart: unless-stopped
 
 volumes:
     minio_data:
+    postgres_data:
+    pgadmin_data:
+    redis_data:
