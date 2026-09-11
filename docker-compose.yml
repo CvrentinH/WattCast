@@ -1,35 +1,11 @@
 services:
-    minio:
-        image: minio/minio:latest
-        container_name: minio-wattcast
-        environment:
-            MINIO_ROOT_USER: admin
-            MINIO_ROOT_PASSWORD: miniopassword
-        ports:
-            - "9000:9000"
-            - "9001:9001"
-        volumes:
-            - minio_data:/data
-        command: server /data --console-address ":9001"
-        restart: unless-stopped
-
-    init-buckets:
-        image: minio/mc:latest
-        depends_on:
-            - minio
-        entrypoint: >
-            /bin/sh -c " until /usr/bin/mc alias set local http://minio:9000 admin miniopassword; do
-              echo 'En attente du démarrage de MinIO...';
-              sleep 1;
-            done; /usr/bin/mc mb local/bucket-silver --ignore-existing; /usr/bin/mc mb local/bucket-bronze --ignore-existing; exit 0; "
-
     postgres:
         image: postgres:17
         container_name: postgres-wattcast
         environment:
-                    POSTGRES_USER: admin
-                    POSTGRES_PASSWORD: postgrespassword
-                    POSTGRES_DB: wattcast_db
+                    POSTGRES_USER: ${POSTGRES_USER}
+                    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+                    POSTGRES_DB: ${POSTGRES_DB}
         ports:
             - "5432:5432"
         volumes:
@@ -49,8 +25,36 @@ services:
         depends_on:
           -  postgres
 
+    minio:
+        image: minio/minio:latest
+        profiles: [batch]
+        container_name: minio-wattcast
+        environment:
+            MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+            MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        volumes:
+            - minio_data:/data
+        command: server /data --console-address ":9001"
+        restart: unless-stopped
+
+    init-buckets:
+        image: minio/mc:latest
+        profiles: [batch]
+        depends_on:
+            - minio
+        entrypoint: >
+            /bin/sh -c " until /usr/bin/mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
+              echo 'En attente du démarrage de MinIO...';
+              sleep 1;
+            done; /usr/bin/mc mb local/bucket-silver --ignore-existing; /usr/bin/mc mb local/bucket-bronze --ignore-existing; exit 0; "
+
+
     redis:
         image: redis:latest
+        profiles: [stream]
         container_name: redis-wattcast
         ports:
           - "6379:6379"
