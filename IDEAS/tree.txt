@@ -1,0 +1,46 @@
+WattCast/
+├── infrastructure/               # Configurations pour déployer les briques (Logos de l'image)
+│   ├── docker-compose.yml        # Déploiement local (Kafka, MinIO, Postgres, Redis, etc.)
+│   ├── kafka/                    # Scripts de configuration (Kafka Connect, topics)
+│   └── observabilite/            # Configurations Grafana (dashboards, datasources)
+│
+├── airflow/                      # Orchestration (Logo Airflow - "Planifie et Lance")
+│   ├── dags/
+│   │   ├── dag_batch_spark.py    # Pipeline Batch (Météo -> Bronze -> Silver -> Gold)
+│   │   └── dag_ml_training.py    # Déclenchement de l'entraînement du modèle
+│   └── plugins/                  # Opérateurs ou hooks personnalisés Airflow
+│
+├── src/                          # Code source principal
+│   ├── common/                   # Code partagé (connexions BDD, loggers, modèles de données Pydantic)
+│   │   ├── config.py             # Variables d'environnement
+│   │   └── db_clients.py         # Connexions MinIO, Postgres, Redis
+│   │
+│   ├── ingestion/                # Extraction des données sources
+│   │   ├── stream/
+│   │   │   └── rte_live_producer.py    # Appelle API RTE Temps Réel -> pousse vers Kafka
+│   │   └── batch/
+│   │       ├── meteo_archive_fetch.py  # Télécharge Open-Meteo CSV -> MinIO Bronze
+│   │       └── eco2mix_fetch.py        # Convertit XLS Eco2Mix en CSV -> MinIO Bronze
+│   │
+│   ├── processing/               # Cœur du traitement (Traitement Batch & Stream)
+│   │   ├── stream/               # Couche Kappa (Vitesse)
+│   │   │   └── flink_kpi_live.py       # Kafka -> Flink -> Met à jour le cache Redis & Postgres
+│   │   └── batch/                # Couche Lambda (Historique/Lourd)
+│   │       ├── spark_bronze_to_silver.py # Nettoie CSV (Bronze) -> Parquet/Delta (Silver)
+│   │       └── spark_silver_to_gold.py   # Agrégation et jointures -> Postgres Gold
+│   │
+│   └── mlops/                    # MLOps & Machine Learning
+│       ├── training/
+│       │   ├── dataset_builder.py      # Lit Postgres Gold pour préparer les features
+│       │   └── train_model.py          # Pipeline d'entraînement et sauvegarde du modèle
+│       └── serving/
+│           ├── main.py                 # Application FastAPI
+│           └── inference.py            # Charge le modèle, lit le contexte Redis, renvoie la prédiction
+│
+├── tests/                        # Tests unitaires et d'intégration
+│   ├── test_processing/
+│   └── test_mlops/
+│
+├── requirements.txt              # Dépendances Python
+├── .gitignore
+└── README.md
