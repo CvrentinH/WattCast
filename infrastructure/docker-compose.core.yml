@@ -10,6 +10,7 @@ services:
             - "5432:5432"
         volumes:
             - postgres_data:/var/lib/postgresql/data
+            - ./init_db_airflow.sql:/docker-entrypoint-initdb.d/init_db_airflow.sql:ro
         restart: unless-stopped
 
     pgadmin:
@@ -41,6 +42,7 @@ services:
 
     init-buckets:
         image: quay.io/minio/mc:latest
+        container_name: init_bucket_minio
         depends_on:
             - minio
         entrypoint: >
@@ -62,7 +64,7 @@ services:
         volumes:
           - redis_data:/data
         command:
-          redis-server --appendonly yes
+          redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-changeit}
         restart: unless-stopped
 
 volumes:

@@ -1,1 +1,5 @@
 # FASTAPI, GRAFANA
+networks:
+  default:
+    name: wattcast
+    external: true

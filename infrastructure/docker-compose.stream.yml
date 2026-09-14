@@ -1,1 +1,26 @@
 # KAFKA, FLINK
+services:
+  kafka:
+    image: apache/kafka:4.3.1
+    container_name: kafka-wattcast
+    environment:
+    command:
+    volumes:
+    ports:
+    restart: unless-stopped
+    mem_limit: Xg
+
+  flink:
+    image: flink:latest
+    container_name: flink-wattcast
+    environment:
+    command:
+    volumes:
+    ports:
+    restart: unless-stopped
+    mem_limit: Xg
+
+networks:
+  default:
+    name: wattcast
+    external: true

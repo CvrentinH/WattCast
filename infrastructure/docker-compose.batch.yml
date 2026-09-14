@@ -1,1 +1,49 @@
 # AIRFLOW, SPARK
+
+services:
+  airflow:
+    image: apache/airflow:2.10.2
+    container_name: airflow-wattcast
+    user: "${AIRFLOW_UID:-50000}:0"
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow_db
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - PYTHONPATH=/opt/airflow
+      - _PIP_ADDITIONAL_REQUIREMENTS=redis docker
+    command: >
+        bash -c "
+        exec airflow standalone
+        "
+    volumes:
+      - ../airflow/dags:/opt/airflow/dags
+      - ../airflow/plugins:/opt/airflow/plugins
+      - ../airflow/logs:/opt/airflow/logs
+      - ../src:/opt/airflow/src
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    mem_limit: 1.5g
+
+  spark:
+    image: apache/spark:3.5.1
+    container_name: spark-wattcast
+    environment:
+      - MINIO_ROOT_USER
+      - MINIO_ROOT_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - PYTHONPATH=/opt/spark/src
+    ports:
+      - "4040:4040"
+    command: tail -f /dev/null
+    volumes:
+     - ../src:/opt/spark/src:co
+    restart: unless-stopped
+    mem_limit: 2g
+
+networks:
+  default:
+    name: wattcast
+    external: true
