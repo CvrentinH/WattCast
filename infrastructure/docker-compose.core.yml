@@ -1,3 +1,5 @@
+# Postgre, PGAdmin, Minio, Redis
+
 services:
     postgres:
         image: postgres:17

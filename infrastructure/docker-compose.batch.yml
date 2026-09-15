@@ -23,14 +23,14 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
-    mem_limit: 1.5g
+    mem_limit: 1g
 
   spark:
     image: apache/spark:3.5.1
     container_name: spark-wattcast
     environment:
-      - MINIO_ROOT_USER
-      - MINIO_ROOT_PASSWORD
+      - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
+      - AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
@@ -39,7 +39,7 @@ services:
       - "4040:4040"
     command: tail -f /dev/null
     volumes:
-     - ../src:/opt/spark/src:co
+     - ../src:/opt/spark/src:ro
     restart: unless-stopped
     mem_limit: 2g
 
