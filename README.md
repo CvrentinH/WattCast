@@ -1,12 +1,28 @@
+Créer le reseau interne du projet
+docker network create wattcast$
+
 lancement docker compose core
-docker compose --env-file .env -f infrastructure/docker-compose.core.yml up -d
+make core
 
 lancement docker compose batch
-docker compose --env-file .env -f infrastructure/docker-compose.batch.yml up -d
+make batch 
 
 lancement docker compose stream
-docker compose --env-file .env -f infrastructure/docker-compose.stream.yml up -d
+make stream 
 
-utiliser la commande 
-docker exec -it airflow-wattcast airflow users reset-password -u admin -p admin
-pour modifier les acces admin de airflow (cause : init du standalone)
+utiliser stat -c '%g' /var/run/docker.sock pour connaitre le gid et le remplir dans le .env
+
+MINIO
+http://localhost:9001/
+
+PGADMIN
+http://localhost:5050/
+
+AIRFLOW
+http://localhost:8080/
+
+FLINK
+http://localhost:8081
+
+SPARK
+http://localhost:4040

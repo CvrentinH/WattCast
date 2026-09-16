@@ -20,8 +20,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
-      KAFKA_HEAP_OPTS: "-Xmx512m -Xms512m"
-    mem_limit: 1g
+      KAFKA_HEAP_OPTS: "-Xmx384m -Xms384m"
+    mem_limit: 768m
     restart: unless-stopped
 
   jobmanager:
@@ -39,11 +39,14 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
-        jobmanager.memory.process.size: 800m
+        jobmanager.memory.process.size: 600m
     mem_limit: 750m
     restart: unless-stopped
 
   taskmanager:
+    build:
+      context: ./flink
+      dockerfile: Dockerfile
     image: wattcast-pyflink:1.19
     container_name: flink-taskmanager
     depends_on:
@@ -56,9 +59,24 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 1
-        taskmanager.memory.process.size: 1024m
-    mem_limit: 1.2g
+        taskmanager.memory.process.size: 800m
+    mem_limit: 1000m
     restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    container_name: redis-wattcast
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command:
+      redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-changeit}
+    restart: unless-stopped
+    mem_limit: 256m
+
+volumes:
+  redis_data:
 
 networks:
   default:

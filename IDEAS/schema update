@@ -1,0 +1,5 @@
+enlever rmq et kafka
+
+faire a la place un script producteur dans les topics kafka
+
+passage d'un dockeroperator pour gagner de la mémoire avec airflow sur l'utilisation de spark
