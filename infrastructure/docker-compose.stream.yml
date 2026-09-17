@@ -59,8 +59,8 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 1
-        taskmanager.memory.process.size: 800m
-    mem_limit: 1000m
+        taskmanager.memory.process.size: 1600m
+    mem_limit: 1800m
     restart: unless-stopped
 
   redis:

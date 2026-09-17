@@ -7,18 +7,17 @@ help:
 	@echo "     make down : ferme tous les compose"
 
 core:
-	docker compose -p myapp-core --env-file .env -f infrastructure/docker-compose.core.yml up -d --remove-orphans
+	docker compose -p wattcast-core --env-file .env -f infrastructure/docker-compose.core.yml up -d --remove-orphans
 
 batch:
-	docker compose -p myapp-batch --env-file .env -f infrastructure/docker-compose.batch.yml up -d --remove-orphans
-	@until docker exec airflow-wattcast airflow db check 2>/dev/null; do sleep 2; done
-	@sleep 5
-	docker exec -it airflow-wattcast airflow users reset-password -u admin -p admin
+	docker compose -p wattcast-batch --env-file .env -f infrastructure/docker-compose.batch.yml build spark
+	docker compose -p wattcast-batch --env-file .env -f infrastructure/docker-compose.batch.yml up -d --remove-orphans
+	docker exec airflow-wattcast bash -c "until airflow db check 2>/dev/null; do sleep 2; done; airflow users reset-password -u admin -p admin"
 
 stream:
-	docker compose -p myapp-stream --env-file .env -f infrastructure/docker-compose.stream.yml up -d --remove-orphans
+	docker compose -p wattcast-stream --env-file .env -f infrastructure/docker-compose.stream.yml up -d --remove-orphans
 
 down:
-	docker compose -p myapp-core --env-file .env -f infrastructure/docker-compose.core.yml down
-	docker compose -p myapp-batch --env-file .env -f infrastructure/docker-compose.batch.yml down
-	docker compose -p myapp-stream --env-file .env -f infrastructure/docker-compose.stream.yml down
+	docker compose -p wattcast-core --env-file .env -f infrastructure/docker-compose.core.yml down
+	docker compose -p wattcast-batch --env-file .env -f infrastructure/docker-compose.batch.yml down
+	docker compose -p wattcast-stream --env-file .env -f infrastructure/docker-compose.stream.yml down

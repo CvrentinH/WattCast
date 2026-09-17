@@ -1,5 +1,5 @@
 Créer le reseau interne du projet
-docker network create wattcast$
+docker network create wattcast
 
 lancement docker compose core
 make core
@@ -10,7 +10,9 @@ make batch
 lancement docker compose stream
 make stream 
 
-utiliser stat -c '%g' /var/run/docker.sock pour connaitre le gid et le remplir dans le .env
+utiliser 
+stat -c '%g' /var/run/docker.sock 
+pour connaitre le gid et le remplir dans le .env
 
 MINIO
 http://localhost:9001/

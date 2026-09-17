@@ -10,7 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init_db_airflow.sql:/docker-entrypoint-initdb.d/init_db_airflow.sql:ro
+      - ./airflow/init_db_airflow.sql:/docker-entrypoint-initdb.d/init_db_airflow.sql:ro
     restart: unless-stopped
     mem_limit: 512m
 
@@ -50,15 +50,10 @@ services:
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c "
-      until /usr/bin/mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
+      /bin/sh -c " until /usr/bin/mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
         echo 'En attente de MinIO...';
         sleep 1;
-      done;
-      /usr/bin/mc mb local/bucket-silver --ignore-existing;
-      /usr/bin/mc mb local/bucket-bronze --ignore-existing;
-      exit 0;
-      "
+      done; /usr/bin/mc mb local/bucket-silver --ignore-existing; /usr/bin/mc mb local/bucket-bronze --ignore-existing; exit 0; "
     mem_limit: 256m
 
 volumes:

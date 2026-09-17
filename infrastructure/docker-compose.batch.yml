@@ -1,21 +1,19 @@
 services:
   airflow:
     build:
-        context: ./airflow
-        dockerfile: Dockerfile
+      context: ./airflow
+      dockerfile: Dockerfile
     container_name: airflow-wattcast
     user: "${AIRFLOW_UID:-50000}:0"
     group_add:
-        - "${DOCKER_GID}"
+      - "${DOCKER_GID}"
     environment:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/airflow_db
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
       - PYTHONPATH=/opt/airflow
     command: >
-      bash -c "
-      exec airflow standalone
-      "
+      bash -c " exec airflow standalone "
     volumes:
       - ../airflow/dags:/opt/airflow/dags
       - ../airflow/plugins:/opt/airflow/plugins
@@ -26,6 +24,13 @@ services:
       - "8080:8080"
     restart: unless-stopped
     mem_limit: 1400m
+
+  spark:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile
+    image: wattcast-spark:4.2.0
+    profiles: [ "build-only" ]
 
 networks:
   default:
