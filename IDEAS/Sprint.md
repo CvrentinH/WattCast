@@ -1,11 +1,11 @@
-# ⚡ WattCast — Roadmap de Développement de A à Z par Sprints
+# WattCast — Roadmap de Développement de A à Z par Sprints
 
 Bienvenue dans la feuille de route opérationnelle du projet **WattCast**.  
 L'infrastructure de base étant validée et opérationnelle (Phase 1), ce document détaille le découpage méthodique pour développer l'ensemble des composants applicatifs, data pipelines, moteurs de streaming, briques MLOps et dashboards.
 
 ---
 
-## 📊 Synthèse Globale des Sprints
+## Synthèse Globale des Sprints
 
 ```mermaid
 flowchart TD
@@ -37,11 +37,11 @@ flowchart TD
 
 ---
 
-## 🎯 Détail des Sprints
+## Détail des Sprints
 
 ---
 
-### 📦 Sprint 1 : Socle Commun, Schémas de Base de Données & Ingestion Batch (Bronze)
+### Sprint 1 : Socle Commun, Schémas de Base de Données & Ingestion Batch (Bronze)
 > **Objectif** : Mettre en place les fondations logicielles (config, clients de stockage), concevoir le modèle de données PostgreSQL et ingérer les données historiques dans le Data Lake (MinIO Bronze).
 
 #### 1.1. Socle Commun (`src/common/`)
@@ -73,7 +73,7 @@ flowchart TD
 
 ---
 
-### ⚡ Sprint 2 : Traitement Batch avec Spark (Couches Silver & Gold)
+### Sprint 2 : Traitement Batch avec Spark (Couches Silver & Gold)
 > **Objectif** : Développer les jobs PySpark conteneurisés pour nettoyer, enrichir et croiser les données de consommation et de météo selon l'architecture en Médaillon.
 
 #### 2.1. Du Bronze vers le Silver (`spark_bronze_to_silver.py`)
@@ -104,7 +104,7 @@ flowchart TD
 
 ---
 
-### ⏱️ Sprint 3 : Orchestration Batch & Qualité des Données (Airflow)
+### Sprint 3 : Orchestration Batch & Qualité des Données (Airflow)
 > **Objectif** : Automatiser l'ensemble du pipeline Batch avec Apache Airflow en tirant parti du `DockerOperator` pour exécuter Spark sans surcharger la mémoire.
 
 #### 3.1. Implémentation du DAG Batch (`airflow/dags/dag_batch_spark.py`)
@@ -123,7 +123,7 @@ flowchart TD
 
 ---
 
-### 🌊 Sprint 4 : Ingestion & Traitement Streaming (Speed Layer - Kafka, Flink & Redis)
+### Sprint 4 : Ingestion & Traitement Streaming (Speed Layer - Kafka, Flink & Redis)
 > **Objectif** : Concevoir la branche temps réel à haute fréquence (Kappa Layer) pour ingérer la télémétrie réseau, calculer des métriques glissantes et alimenter le cache à chaud Redis.
 
 #### 4.1. Producteur Streaming (`src/ingestion/stream/rte_live_producer.py`)
@@ -147,7 +147,7 @@ flowchart TD
 
 ---
 
-### 🧠 Sprint 5 : MLOps — Entraînement de Modèle & Détection de Dérive
+### Sprint 5 : MLOps — Entraînement de Modèle & Détection de Dérive
 > **Objectif** : Concevoir un modèle de Machine Learning capable de prédire la charge électrique à J+1 et mettre en place un pipeline automatisé de réentraînement.
 
 #### 5.1. Préparation du Dataset (`src/mlops/training/dataset_builder.py`)
@@ -171,7 +171,7 @@ flowchart TD
 
 ---
 
-### 🚀 Sprint 6 : MLOps — Inférence Temps Réel, FastAPI & Circuit Breaker
+### Sprint 6 : MLOps — Inférence Temps Réel, FastAPI & Circuit Breaker
 > **Objectif** : Exposer un microservice d'inférence sécurisé, ultra-réactif et résilient aux pannes.
 
 #### 6.1. Service d'Inférence (`src/mlops/serving/inference.py` & `main.py`)
@@ -187,7 +187,7 @@ flowchart TD
 #### 6.2. Implémentation du Pattern Circuit Breaker (Sécurité MLOps)
 - [ ] Intégration d'un mécanisme de bascule de secours :
   - Si Redis est indisponible, ou si l'API météo externe échoue, ou si la latence d'inférence dépasse 300 ms :  
-    👉 Activation immédiate du mode dégradé (utilisation d'un modèle heuristique / consommation de la même journée de la semaine précédente $J-7$).
+    -> Activation immédiate du mode dégradé (utilisation d'un modèle heuristique / consommation de la même journée de la semaine précédente $J-7$).
   - Aucun appel client ne doit lever une erreur 500 bloquante pour les processus décisionnels.
 - [ ] Log de la prédiction (et du mode utilisé : normal ou dégradé) dans PostgreSQL `fact_predictions`.
 
@@ -197,7 +197,7 @@ flowchart TD
 
 ---
 
-### 📈 Sprint 7 : Restitution Décisionnelle & Observabilité
+### Sprint 7 : Restitution Décisionnelle & Observabilité
 > **Objectif** : Permettre aux gestionnaires du réseau et aux ingénieurs d'exploiter la donnée via des tableaux de bord visuels et du monitoring technique.
 
 #### 7.1. Dashboard Décisionnel (Power BI ou Streamlit / Grafana)
@@ -215,7 +215,7 @@ flowchart TD
 
 ---
 
-### 🧪 Sprint 8 : Tests End-to-End, Résilience & Documentation Finale
+### Sprint 8 : Tests End-to-End, Résilience & Documentation Finale
 > **Objectif** : Valider l'ensemble du cycle de vie de la donnée, éprouver la robustesse de la chaîne et finaliser un rendu professionnel pour portfolio / soutenance.
 
 #### 8.1. Suite de Tests Automatisés (`tests/`)
@@ -233,7 +233,7 @@ flowchart TD
 
 ---
 
-## 🛠️ Matrice des Compétences & Technologies Démontrées
+## Matrice des Compétences & Technologies Démontrées
 
 | Domaine | Technologies Utilisées |
 | :--- | :--- |
