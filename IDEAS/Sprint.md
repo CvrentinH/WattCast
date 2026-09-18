@@ -47,7 +47,7 @@ flowchart TD
 #### 1.1. Socle Commun (`src/common/`)
 - [x] Créer `src/common/config.py` :
   - Utiliser `pydantic-settings` pour charger et valider toutes les variables du fichier `.env` (URLs MinIO/S3, identifiants PostgreSQL, hôtes Kafka, Redis, etc.).
-- [x] Créer `src/common/db_clients.py` :
+- [x] Créer `src/common/clients.py` :
   - Client S3 / MinIO (boto3 / s3fs) avec gestion du retry et de la création de buckets.
   - Client relationnel PostgreSQL (moteur SQLAlchemy / session psycopg2 / connection pooling).
   - Client Redis (redirection avec mot de passe et ping de santé).

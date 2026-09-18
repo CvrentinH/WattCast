@@ -1,15 +1,34 @@
-RTE historique indicateurs
+1. RTE - Archives eCO2mix (Indicateurs historiques)
+Lien : https://www.rte-france.com/donnees-publications/eco2mix-donnees-temps-reel/telecharger-indicateurs
+Format : XLS / CSV
+Rôle dans le projet :
+- Couche Batch (Data Lake MinIO Bronze).
+- Constitue l'historique massif d'apprentissage (consommation réelle globale et par filière).
+- Traité par PySpark (Bronze -> Silver -> Gold) pour construire le socle d'entraînement des modèles ML.
 
-https://www.rte-france.com/donnees-publications/eco2mix-donnees-temps-reel/telecharger-indicateurs
 
-open meteo forecasts
+2. Open-Meteo - Historical Weather API (Archives météo)
+Lien : https://open-meteo.com/en/docs/historical-weather-api
+Format : JSON / CSV (Hourly)
+Rôle dans le projet :
+- Couche Batch (Ingestion MinIO Bronze).
+- Fournit les variables exogènes passées (température à 2m, vent, humidité, nébulosité) alignées sur les dates eCO2mix.
+- Fusionné avec la consommation dans Spark pour alimenter la matrice de features du modèle ML (gestion de la thermosensibilité).
 
-https://open-meteo.com/en/docs?forecast_days=1
 
-open meteo historicals
+3. API RTE Data - Consumption (Flux "short_term" uniquement)
+Lien : https://data.rte-france.com/catalog/-/api/consumption/Consumption/v1.2
+Format : JSON
+Rôle dans le projet :
+- Couche Speed Layer / Streaming (Kafka -> Flink -> Redis).
+- Alimente le producteur Kafka (`rte_live_producer.py`) pour simuler ou consommer la télémétrie réseau en continu au pas 15 minutes.
+- Fournit également les prévisions de référence officielles de RTE (D-1 et Intra-Day) pour évaluer et benchmarker les performances de ton modèle (calcul du MAPE comparatif dans PostgreSQL et Power BI).
 
-https://open-meteo.com/en/docs/historical-weather-api?start_date=2024-01-01&end_date=2024-12-31&timezone=auto&latitude=44&longitude=
 
-RTE API (Temps réel & Hist) : 
-
-https://data.rte-france.com/catalog/-/api/consumption/Consumption/v1.2
+4. Open-Meteo - Forecast Weather API (Prévisions météo J+1)
+Lien : https://open-meteo.com/en/docs?forecast_days=1
+Format : JSON (Hourly)
+Rôle dans le projet :
+- Couche Serving MLOps / Inférence (FastAPI).
+- Interrogé en temps réel par l'API de prédiction pour récupérer la météo prévue des prochaines 24h.
+- Combiné avec le contexte glissant extrait de Redis pour former le vecteur d'inférence en direct transmis au modèle XGBoost/LightGBM.

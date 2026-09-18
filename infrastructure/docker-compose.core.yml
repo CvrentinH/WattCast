@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init_db_postgres.sql:ro
       - ./airflow/init_db_airflow.sql:/docker-entrypoint-initdb.d/init_db_airflow.sql:ro
     restart: unless-stopped
     mem_limit: 512m
