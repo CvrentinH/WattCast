@@ -54,7 +54,7 @@ flowchart TD
 - [X] Ajouter un module de logging partagé `src/common/logger.py` pour un formatage JSON structuré.
 
 #### 1.2. Modélisation PostgreSQL & Schéma Initial
-- [ ] Définir les scripts DDL SQL pour la base PostgreSQL `wattcast` :
+- [x] Définir les scripts DDL SQL pour la base PostgreSQL `wattcast` :
   - Table `dim_grid_node` : référentiel des nœuds / sous-stations électriques (id, région, latitude, longitude, capacité max en MW).
   - Table `fact_power_consumption_hourly` : historique consolidé (timestamp, node_id, conso_reelle_mw, temperature_c, vent_kmh, etc.).
   - Table `fact_predictions` : logs des prédictions du modèle (timestamp_prevision, timestamp_cible, node_id, conso_predite_mw, modele_version).
