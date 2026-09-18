@@ -13,7 +13,7 @@ WattCast/
 ├── src/                          # Code source principal
 │   ├── common/                   # Code partagé (connexions BDD, loggers, modèles de données Pydantic)
 │   │   ├── config.py             # Variables d'environnement
-│   │   └── db_clients.py         # Connexions MinIO, Postgres, Redis
+│   │   └── clients.py         # Connexions MinIO, Postgres, Redis
 │   │
 │   ├── ingestion/                # Extraction des données sources
 │   │   ├── stream/

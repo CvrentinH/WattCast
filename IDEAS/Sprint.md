@@ -45,13 +45,13 @@ flowchart TD
 > **Objectif** : Mettre en place les fondations logicielles (config, clients de stockage), concevoir le modèle de données PostgreSQL et ingérer les données historiques dans le Data Lake (MinIO Bronze).
 
 #### 1.1. Socle Commun (`src/common/`)
-- [ ] Créer `src/common/config.py` :
+- [x] Créer `src/common/config.py` :
   - Utiliser `pydantic-settings` pour charger et valider toutes les variables du fichier `.env` (URLs MinIO/S3, identifiants PostgreSQL, hôtes Kafka, Redis, etc.).
-- [ ] Créer `src/common/db_clients.py` :
+- [x] Créer `src/common/db_clients.py` :
   - Client S3 / MinIO (boto3 / s3fs) avec gestion du retry et de la création de buckets.
   - Client relationnel PostgreSQL (moteur SQLAlchemy / session psycopg2 / connection pooling).
   - Client Redis (redirection avec mot de passe et ping de santé).
-- [ ] Ajouter un module de logging partagé `src/common/logger.py` pour un formatage JSON structuré.
+- [X] Ajouter un module de logging partagé `src/common/logger.py` pour un formatage JSON structuré.
 
 #### 1.2. Modélisation PostgreSQL & Schéma Initial
 - [ ] Définir les scripts DDL SQL pour la base PostgreSQL `wattcast` :
