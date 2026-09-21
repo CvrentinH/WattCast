@@ -61,15 +61,15 @@ flowchart TD
   - Table `model_metrics_history` : suivi des performances (date_evaluation, region, mape, rmse).
 
 #### 1.3. Ingestion Batch dans MinIO Bronze (`src/ingestion/batch/`)
-- [ ] `eco2mix_fetch.py` :
+- [x] `eco2mix_fetch.py` :
   - Téléchargement des archives eCO2mix (RTE) au format XLS/CSV.
   - Parsing et stockage brut immuable dans MinIO :  
-    `bucket-bronze/raw/eco2mix/year=YYYY/month=MM/eco2mix_national_YYYY_MM.csv`.
-- [ ] `meteo_archive_fetch.py` :
+    `bucket-bronze/raw/eco2mix/year=YYYY/eco2mix_national_YYYY.csv`.
+- [x] `meteo_archive_fetch.py` :
   - Requêtage de l'API Open-Meteo Historical Weather pour les coordonnées des nœuds cibles (France entière ou par région).
   - Sauvegarde brute dans MinIO :  
-    `bucket-bronze/raw/meteo/year=YYYY/month=MM/meteo_YYYY_MM.json` (ou `.csv`).
-- [ ] Tester les scripts en local avec l'environnement virtuel `uv`.
+    `bucket-bronze/raw/meteo/year=YYYY/meteo_YYYY.csv`
+- [x] Tester les scripts en local avec l'environnement virtuel `uv`.
 
 ---
 
@@ -80,14 +80,17 @@ flowchart TD
 - [ ] Initialiser la session Spark avec configuration S3A (`spark.hadoop.fs.s3a.*` pointant vers `minio:9000`).
 - [ ] Nettoyage des données eCO2mix :
   - Normalisation des timestamps (passage en UTC ISO-8601).
+  - Parsing temporel : extraction des colonnes `year` et `month` (format `MM`) à partir de la date pour recréer le partitionnement mensuel cible.
   - Gestion des valeurs nulles ou aberrantes (interpolation linéaire ou forward-fill temporel).
   - Typage strict (Float, Timestamp, String).
 - [ ] Nettoyage des données météo :
   - Extraction de la température à 2m, de la vitesse du vent, de l'ensoleillement (DNI/GHI).
+  - Parsing temporel : dérivation des colonnes `year` et `month` (format `MM`) pour l'alignement de partitionnement.
   - Ré-échantillonnage temporel si nécessaire (alignement sur le pas 15 min ou 1h).
-- [ ] Écriture dans MinIO `bucket-silver` au format **Parquet** compressé Snappy, partitionné par date :
+- [ ] Écriture dans MinIO `bucket-silver` au format **Parquet** compressé Snappy, partitionné par date (format Hive `year=YYYY/month=MM/`) :
   - `bucket-silver/consumption/year=YYYY/month=MM/`
   - `bucket-silver/meteo/year=YYYY/month=MM/`
+  - *(Note : les fichiers bruts annuels Bronze étant sous `year=YYYY`, c'est Spark qui applique ce re-partitionnement granulaire au format Hive).*
 
 #### 2.2. Du Silver vers le Gold (`spark_silver_to_gold.py`)
 - [ ] Lecture des tables Parquet Silver.
