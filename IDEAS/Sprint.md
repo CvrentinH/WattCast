@@ -26,7 +26,7 @@ flowchart TD
 | Sprint | Nom du Sprint | Objectif Principal | Livrables Clés |
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | **Infra & Conteneurs** | *Terminé* : Core (PG, MinIO), Batch (Airflow, Spark), Stream (Kafka, Flink, Redis), uv | Compose files, Dockerfiles, Makefile |
-| **Sprint 1** | **Socle Commun & Ingestion Batch** | Initialiser les configurations partagées, les schémas PostgreSQL et télécharger les données sources dans MinIO Bronze | `src/common/`, `meteo_archive_fetch.py`, `eco2mix_fetch.py`, DDL PostgreSQL |
+| **Sprint 1** | **Socle Commun & Ingestion Batch** | *Terminé* : Initialiser les configurations partagées, les schémas PostgreSQL et télécharger les données sources dans MinIO Bronze | `src/common/`, `meteo_archive_fetch.py`, `eco2mix_fetch.py`, DDL PostgreSQL |
 | **Sprint 2** | **Traitement Batch avec Spark** | Nettoyer et croiser la météo et la consommation électrique (Médaillon Bronze -> Silver -> Gold) | `spark_bronze_to_silver.py`, `spark_silver_to_gold.py`, tables Parquet & SQL |
 | **Sprint 3** | **Orchestration Batch (Airflow)** | Automatiser le pipeline Batch via `DockerOperator` avec contrôle de la qualité des données | `dag_batch_spark.py`, Data Quality Gates |
 | **Sprint 4** | **Speed Layer (Kafka, Flink, Redis)** | Collecter la télémétrie temps réel et calculer des fenêtres glissantes à très basse latence | `rte_live_producer.py`, `flink_kpi_live.py`, Feature Store Redis |

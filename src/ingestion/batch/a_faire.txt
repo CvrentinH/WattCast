@@ -1,3 +1,0 @@
-ajouter les données au s3
-
-enlever la partie locale pour tout mettre sur s3 direct (en ne gardant pas les zip et les xls de eco2mix donc peut etre tout mettre dans 1 methode)
