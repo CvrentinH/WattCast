@@ -6,6 +6,7 @@ import pandas as pd
 from common.config import get_settings
 
 
+
 class OpenMeteo(BaseFetcher):
 
     def __init__(self, settings, year):
@@ -56,8 +57,3 @@ class OpenMeteo(BaseFetcher):
             self.s3_body = hourly_dataframe.to_csv(index=False, encoding="utf-8").encode("utf-8")
 
             self.upload_to_bronze()
-
-if __name__ == "__main__":
-    settings = get_settings()
-    OM = OpenMeteo(settings, 2021)
-    OM.fetch()

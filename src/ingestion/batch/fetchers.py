@@ -10,7 +10,7 @@ class BaseFetcher(ABC):
     def __init__(self, settings):
         self.settings = settings
         self.minio_client = MinioClient(settings)
-        self.bucket = self.bucket = self.settings.MINIO_BUCKET_BRONZE
+        self.bucket = self.settings.MINIO_BUCKET_BRONZE
 
         # Child time
         self.s3_key = None
@@ -26,8 +26,10 @@ class BaseFetcher(ABC):
             return True
         except ClientError as e:
             error_code = int(e.response['Error']['Code'])
-            print(error_code)
+            print(f"Error {error_code} joining bucket {self.bucket}")
             return False
 
     def upload_to_bronze(self):
+        if not self.check_bucket_init():
+            return None
         return self.minio_client.client.put_object(Bucket = self.bucket, Key = self.s3_key, Body = self.s3_body)

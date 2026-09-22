@@ -29,8 +29,3 @@ class Eco2Mix(BaseFetcher):
     def _xls_to_csv(self, xls_stream):
         df = pd.read_csv(xls_stream, sep="\t", encoding="latin-1", low_memory=False)
         return df.to_csv(index=False).encode("utf-8")
-
-if __name__ == "__main__":
-    settings = get_settings()
-    ECO2 = Eco2Mix(settings, 2021)
-    ECO2.fetch()
