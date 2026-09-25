@@ -3,8 +3,6 @@ import requests
 import zipfile
 import pandas as pd
 from io import BytesIO
-from common.config import get_settings
-
 
 class Eco2Mix(BaseFetcher):
 

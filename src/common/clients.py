@@ -71,7 +71,7 @@ class MinioClient:
             try:
                 self.client.head_bucket(Bucket=bucket_name)
             except EndpointConnectionError:
-                print(f"Bucket {bucket_name} injoignable")
+                print(f"{bucket_name} injoignable")
                 sys.exit(1)
             except ClientError as e:
                 error_code = e.response["Error"]["Code"]

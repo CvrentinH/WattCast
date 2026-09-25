@@ -3,8 +3,6 @@ import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 import pandas as pd
-from common.config import get_settings
-
 
 
 class OpenMeteo(BaseFetcher):
