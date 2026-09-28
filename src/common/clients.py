@@ -3,9 +3,8 @@ from sqlalchemy.orm import sessionmaker
 import redis
 import boto3
 from botocore.client import Config
-from botocore.exceptions import ClientError, EndpointConnectionError
+from botocore.exceptions import ClientError
 from common.config import get_settings
-import sys
 
 settings = get_settings()
 
@@ -62,20 +61,14 @@ class MinioClient:
             region_name="us-east-1",
             config = config_client
         )
-        self.create_bucket()
+        self.init_bucket()
 
 
-    def create_bucket(self):
-        buckets_to_create = [self.settings.MINIO_BUCKET_BRONZE, self.settings.MINIO_BUCKET_SILVER]
-        for bucket_name in buckets_to_create:
-            try:
-                self.client.head_bucket(Bucket=bucket_name)
-            except EndpointConnectionError:
-                print(f"{bucket_name} injoignable")
-                sys.exit(1)
-            except ClientError as e:
-                error_code = e.response["Error"]["Code"]
-                if error_code in ("404", "NoSuchBucket"):
+    def init_bucket(self):
+            buckets_to_create = [self.settings.MINIO_BUCKET_BRONZE, self.settings.MINIO_BUCKET_SILVER]
+            response = self.client.list_buckets()
+            existing_buckets = {b["Name"] for b in response.get("Buckets", [])}
+
+            for bucket_name in buckets_to_create:
+                if bucket_name not in existing_buckets:
                     self.client.create_bucket(Bucket=bucket_name)
-                else:
-                    raise e
