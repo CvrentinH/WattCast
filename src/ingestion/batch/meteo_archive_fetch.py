@@ -3,18 +3,17 @@ import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 import pandas as pd
-from common.config import get_settings
 
 
 class OpenMeteo(BaseFetcher):
 
-    def __init__(self, settings):
-        super().__init__(settings)        
+    def __init__(self, settings, year):
+        super().__init__(settings)
+        self.s3_key = f"raw/meteo/year={year}/meteo_{year}.csv"
 
     def fetch(self):
         for year in range(2021, 2025):
             url = "https://archive-api.open-meteo.com/v1/archive"
-            s3_key = f"raw/meteo/year={year}/meteo_{year}.csv"
 
             cache_session = requests_cache.CachedSession('.cache', expire_after = -1)
             retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
@@ -53,11 +52,6 @@ class OpenMeteo(BaseFetcher):
             hourly_data["relative_humidity_2m"] = hourly_relative_humidity_2m
 
             hourly_dataframe = pd.DataFrame(data = hourly_data)
-            body = hourly_dataframe.to_csv(index=False, encoding="utf-8").encode("utf-8")
+            self.s3_body = hourly_dataframe.to_csv(index=False, encoding="utf-8").encode("utf-8")
 
-            self.upload_to_bronze(s3_key, body)
-
-if __name__ == "__main__":
-    settings = get_settings()
-    OM = OpenMeteo(settings)
-    OM.fetch()
+            self.upload_to_bronze()
