@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker
 import redis
 import boto3
 from botocore.client import Config
-from botocore.exceptions import ClientError
 from common.config import get_settings
 
 settings = get_settings()
