@@ -12,8 +12,8 @@ class Eco2Mix(BaseFetcher):
 
     def fetch(self):
         url = self.url
-        request = requests.get(url)
-        request.raise_for_status()
-        xls_stream = unzip(request.content)
+        response = requests.get(url)
+        response.raise_for_status()
+        xls_stream = unzip(response.content)
         self.s3_body = xls_to_csv(xls_stream)
         self.upload_to_bronze()
