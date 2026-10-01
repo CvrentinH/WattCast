@@ -21,7 +21,11 @@ class BaseFetcher(ABC):
         return self.minio_client.client.head_bucket(Bucket = self.bucket) is not None
 
     def upload_to_bronze(self):
-        if not self.s3_key or not self.s3_body :
-            raise ValueError(f"Error uploading to bucket {self.bucket} // s3_key = {self.s3_key} // s3_body = {self.s3_body}")
+        if not self.s3_key or not self.s3_body:
+                body_size = len(self.s3_body) if self.s3_body else 0
+                raise ValueError(
+                    f"Error uploading to bucket '{self.bucket}': "
+                    f"s3_key={self.s3_key}, s3_body_size={body_size} bytes"
+                )
 
         return self.minio_client.client.put_object(Bucket = self.bucket, Key = self.s3_key, Body = self.s3_body)
