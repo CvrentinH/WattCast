@@ -3,7 +3,7 @@ import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 import pandas as pd
-from ingestion.batch.const import OPENMETEO_URL_BASE
+from ingestion.batch.const import OPENMETEO_URL_BASE, S3_KEY_TEMPLATE
 
 
 class OpenMeteo(BaseFetcher):
@@ -11,10 +11,7 @@ class OpenMeteo(BaseFetcher):
     def __init__(self, settings, year):
         super().__init__(settings)
         self.url = OPENMETEO_URL_BASE
-        self.s3_key = self.get_s3_key(year)
-
-    def get_s3_key(self, year):
-        return f"raw/meteo/year={year}/meteo_{year}.csv"
+        self.s3_key = S3_KEY_TEMPLATE.replace("$SOURCE", "openmeteo").replace("$YEAR", str(year))
 
     def fetch(self):
         for year in range(2021, 2025):
