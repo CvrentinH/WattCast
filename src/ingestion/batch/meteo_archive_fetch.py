@@ -38,7 +38,9 @@ class OpenMeteoResponse:
 
     def __init__(self, hourly: VariablesWithTime) -> None:
         if hourly.VariablesLength() != len(OPENMETEO_DATA_REQUEST):
-            raise ValueError("Open-Meteo response has an unexpected hourly variable count")
+            raise ValueError(
+                "Open-Meteo response has an unexpected hourly variable count"
+            )
 
         self.start = pd.to_datetime(hourly.Time(), unit="s", utc=True)
         self.end = pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True)
@@ -87,11 +89,10 @@ class OpenMeteo(BaseFetcher):
         self.client = openmeteo_requests.Client(session=retry_session)
 
     def fetch(self):
-        responses = self.client.weather_api(self.url, params=self.request.to_raw())
-        raw_hourly = responses[0].Hourly()
+        response = self.client.weather_api(self.url, params=self.request.to_raw())
+        raw_hourly = response[0].Hourly()
         if raw_hourly is None:
             raise ValueError("Open-Meteo response has no hourly data")
 
-        response = OpenMeteoResponse(raw_hourly)
-        self.s3_body = response.to_csv()
+        self.s3_body = OpenMeteoResponse(raw_hourly).to_csv()
         self.upload_to_bronze()
