@@ -1,10 +1,12 @@
-from typing import Dict
+import numpy as np
+from numpy.typing import NDArray
+from openmeteo_sdk.VariablesWithTime import VariablesWithTime
 from ingestion.batch.fetchers import BaseFetcher
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 import pandas as pd
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from ingestion.batch.const import (
     OPENMETEO_URL_BASE,
     S3_KEY_TEMPLATE,
@@ -29,19 +31,30 @@ class OpenMeteoRequest:
 
 
 class OpenMeteoResponse:
-    start: pd.Date
-    end: pd.Date
-    freq: pd.Delta
-    data: Dict
+    start: pd.Timestamp
+    end: pd.Timestamp
+    freq: pd.Timedelta
+    data: dict[str, NDArray[np.float32]]
 
-    def __init__(self, hourly):
+    def __init__(self, hourly: VariablesWithTime) -> None:
+        if hourly.VariablesLength() != len(OPENMETEO_DATA_REQUEST):
+            raise ValueError("Open-Meteo response has an unexpected hourly variable count")
+
         self.start = pd.to_datetime(hourly.Time(), unit="s", utc=True)
         self.end = pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True)
         self.freq = pd.Timedelta(seconds=hourly.Interval())
-        i = 0
-        for label in OPENMETEO_DATA_REQUEST:
-            self.data[label] = hourly.Variables(i).ValuesAsNumpy()
-            i += 1
+        self.data = {}
+
+        for i, label in enumerate(OPENMETEO_DATA_REQUEST):
+            variable = hourly.Variables(i)
+            if variable is None:
+                raise ValueError(f"Missing hourly variable: {label}")
+
+            values = variable.ValuesAsNumpy()
+            if not isinstance(values, np.ndarray):
+                raise ValueError(f"Missing hourly values: {label}")
+
+            self.data[label] = values
 
     def to_csv(self) -> bytes:
         hourly_data = {
@@ -76,6 +89,9 @@ class OpenMeteo(BaseFetcher):
     def fetch(self):
         responses = self.client.weather_api(self.url, params=self.request.to_raw())
         raw_hourly = responses[0].Hourly()
+        if raw_hourly is None:
+            raise ValueError("Open-Meteo response has no hourly data")
+
         response = OpenMeteoResponse(raw_hourly)
         self.s3_body = response.to_csv()
         self.upload_to_bronze()
