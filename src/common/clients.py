@@ -2,7 +2,7 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 import redis
 import boto3
-from botocore.client import Config, ClientError
+from botocore.client import Config
 from common.config import get_settings
 
 settings = get_settings()
@@ -12,7 +12,7 @@ settings = get_settings()
 class RedisClient:
     def __init__(self, settings):
         self.settings = settings
-        
+
         self.r = redis.Redis(
             host=self.settings.REDIS_HOST,
             port=self.settings.REDIS_PORT,
@@ -46,10 +46,10 @@ class MinioClient:
     def __init__(self, settings):
         self.settings = settings
 
-        config_client= Config(
-            retries={
-                'total_max_attempts' : 10,
-            }
+        config_client = Config(
+                    connect_timeout=1,
+                    read_timeout=1,
+                    retries={"total_max_attempts": 1},
         )
 
         self.client = boto3.client(
@@ -60,13 +60,14 @@ class MinioClient:
             region_name="us-east-1",
             config = config_client
         )
-        self.create_bucket()
+        self.init_bucket()
 
-        
-    def create_bucket(self):
-        buckets_to_create = [self.settings.MINIO_BUCKET_BRONZE, self.settings.MINIO_BUCKET_SILVER]
-        for bucket_name in buckets_to_create:
-            try:
-                self.client.head_bucket(Bucket=bucket_name)
-            except ClientError as E:
-                self.client.create_bucket(Bucket=bucket_name)
+
+    def init_bucket(self):
+            buckets_to_create = [self.settings.MINIO_BUCKET_BRONZE, self.settings.MINIO_BUCKET_SILVER]
+            response = self.client.list_buckets()
+            existing_buckets = {b["Name"] for b in response.get("Buckets", [])}
+
+            for bucket_name in buckets_to_create:
+                if bucket_name not in existing_buckets:
+                    self.client.create_bucket(Bucket=bucket_name)
