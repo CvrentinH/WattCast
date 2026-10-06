@@ -1,6 +1,5 @@
 from ingestion.batch.fetchers import BaseFetcher
 import requests
-from ingestion.batch.file_utils import unzip, xls_to_csv
 from ingestion.batch.const import ECO2MIX_URL_BASE, ECO2MIX_URL_FILE, S3_KEY_TEMPLATE
 
 class Eco2Mix(BaseFetcher):
@@ -13,6 +12,5 @@ class Eco2Mix(BaseFetcher):
     def fetch(self):
         response = requests.get(self.url)
         response.raise_for_status()
-        xls_stream = unzip(response.content)
-        self.s3_body = xls_to_csv(xls_stream)
-        self.upload_to_bronze()
+        self.s3_body = response.content
+        self.upload_to_landing()

@@ -54,7 +54,7 @@ class OpenMeteoResponse:
 
             values = variable.ValuesAsNumpy()
             if not isinstance(values, np.ndarray):
-                raise ValueError(f"Missing hourly values: {label}")
+                raise TypeError(f"Missing hourly values: {label}")
 
             self.data[label] = values
 
@@ -95,4 +95,4 @@ class OpenMeteo(BaseFetcher):
             raise ValueError("Open-Meteo response has no hourly data")
 
         self.s3_body = OpenMeteoResponse(raw_hourly).to_csv()
-        self.upload_to_bronze()
+        self.upload_to_landing()
