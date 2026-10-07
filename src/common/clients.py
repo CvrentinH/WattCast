@@ -1,8 +1,9 @@
+import boto3
+import redis
+from botocore.client import Config
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
-import redis
-import boto3
-from botocore.client import Config
+
 from common.config import get_settings
 
 settings = get_settings()

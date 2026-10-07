@@ -1,17 +1,19 @@
+from dataclasses import dataclass
+
 import numpy as np
+import openmeteo_requests
+import pandas as pd
+import requests_cache
 from numpy.typing import NDArray
 from openmeteo_sdk.VariablesWithTime import VariablesWithTime
-from ingestion.batch.fetchers import BaseFetcher
-import openmeteo_requests
-import requests_cache
 from retry_requests import retry
-import pandas as pd
-from dataclasses import dataclass
+
 from ingestion.batch.const import (
+    OPENMETEO_DATA_REQUEST,
     OPENMETEO_URL_BASE,
     S3_KEY_TEMPLATE,
-    OPENMETEO_DATA_REQUEST,
 )
+from ingestion.batch.fetchers import BaseFetcher
 
 
 @dataclass
@@ -76,8 +78,11 @@ class OpenMeteo(BaseFetcher):
     def __init__(self, settings, year: int, latitude: float, longitude: float):
         super().__init__(settings)
         self.url = OPENMETEO_URL_BASE
-        self.s3_key = S3_KEY_TEMPLATE.replace("$SOURCE", "openmeteo").replace(
-            "$YEAR", str(year)
+        self.s3_key = (
+            S3_KEY_TEMPLATE
+            .replace("$SOURCE", "openmeteo")
+            .replace("$YEAR", str(year))
+            .replace("$EXT", "csv")
         )
         self.request = OpenMeteoRequest(
             year=year,
@@ -95,4 +100,4 @@ class OpenMeteo(BaseFetcher):
             raise ValueError("Open-Meteo response has no hourly data")
 
         self.s3_body = OpenMeteoResponse(raw_hourly).to_csv()
-        self.upload_to_landing()
+        self.upload_to_bucket()
