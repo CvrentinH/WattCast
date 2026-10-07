@@ -1,9 +1,17 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
-from common.s3_base import BaseS3Job
+from common.bucket_s3 import BucketS3
+from common.clients import MinioClient
+from common.config import Settings
 
 
-class BaseTransformers(BaseS3Job):
-    @abstractmethod
-    def transform(self):
-        pass
+class BaseTransformer(ABC):
+	def __init__(self, settings: Settings, source_name: str, target_name: str) -> None:
+		self.settings = settings
+		client = MinioClient(settings).client
+		self.source_bucket = BucketS3(client, source_name)
+		self.bucket = BucketS3(client, target_name)
+
+	@abstractmethod
+	def transform(self) -> None:
+		pass

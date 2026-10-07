@@ -1,32 +1,26 @@
 from pathlib import PurePosixPath
 
 from processing.batch.file_utils import convert_to_csv, unzip
-from processing.batch.transformers import BaseTransformers
+from processing.batch.transformers import BaseTransformer
 
 
-class Landing_to_Bronze(BaseTransformers):
+class Landing_to_Bronze(BaseTransformer):
     def __init__(self, settings):
-        super().__init__(settings)
-        self.bucket_input = self.settings.MINIO_BUCKET_LANDING
-        self.bucket_output = self.settings.MINIO_BUCKET_BRONZE
+        super().__init__(settings, settings.MINIO_BUCKET_LANDING, settings.MINIO_BUCKET_BRONZE)
 
-    def transform(self):
-        objects_list = self.minio_client.client.list_objects_v2(Bucket=self.bucket_input).get("Contents", [])
-        for obj in objects_list:
-            key = obj["Key"]
+    def transform(self) -> None:
+        for key in self.source_bucket.list_keys():
             if key.endswith("/"):
                 continue
 
-            self.s3_key = key
-            self.fetch_from_bucket()
+            body = self.source_bucket.read(key)
 
             path = PurePosixPath(key.lower())
             if path.suffix == ".zip":
-                self.s3_body = convert_to_csv(unzip(self.s3_body))
+                body = convert_to_csv(unzip(body))
                 path = path.with_suffix(".csv")
 
-            self.s3_key = str(path)
-            self.upload_to_bucket()
+            self.bucket.write(str(path), body)
 
     def ingest_into_table(self):
         """

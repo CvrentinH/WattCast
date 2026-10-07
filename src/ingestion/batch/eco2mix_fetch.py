@@ -16,8 +16,7 @@ class Eco2Mix(BaseFetcher):
             .replace("$EXT", "zip")
         )
 
-    def fetch(self):
+    def fetch(self) -> None:
         response = requests.get(self.url)
         response.raise_for_status()
-        self.s3_body = response.content
-        self.upload_to_bucket()
+        self.bucket.write(self.s3_key, response.content)
