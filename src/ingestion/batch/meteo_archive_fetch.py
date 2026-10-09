@@ -93,11 +93,10 @@ class OpenMeteo(BaseFetcher):
         retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
         self.client = openmeteo_requests.Client(session=retry_session)
 
-    def fetch(self):
+    def fetch(self) -> None:
         response = self.client.weather_api(self.url, params=self.request.to_raw())
         raw_hourly = response[0].Hourly()
         if raw_hourly is None:
             raise ValueError("Open-Meteo response has no hourly data")
 
-        self.s3_body = OpenMeteoResponse(raw_hourly).to_csv()
-        self.upload_to_bucket()
+        self.bucket.write(self.s3_key, OpenMeteoResponse(raw_hourly).to_csv())

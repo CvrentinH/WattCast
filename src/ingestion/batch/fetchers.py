@@ -1,17 +1,16 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
-from common.s3_base import BaseS3Job
+from common.bucket_s3 import BucketS3
+from common.clients import MinioClient
+from common.config import Settings
 
 
-class BaseFetcher(BaseS3Job):
-    def __init__(self, settings):
-        super().__init__(settings)
-        self.bucket_output = self.settings.MINIO_BUCKET_LANDING
+class BaseFetcher(ABC):
+	def __init__(self, settings: Settings) -> None:
+		self.settings = settings
+		client = MinioClient(settings).client
+		self.bucket = BucketS3(client, settings.MINIO_BUCKET_LANDING)
 
-    @property
-    def bucket(self):
-        return self.bucket_output
-
-    @abstractmethod
-    def fetch(self):
-        pass
+	@abstractmethod
+	def fetch(self) -> None:
+		pass

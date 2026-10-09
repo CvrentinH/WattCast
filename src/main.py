@@ -24,7 +24,6 @@ def main():
     landing = Landing_to_Bronze(settings)
     print("transform raw -> bronze")
     landing.transform()
-    print(f"saved path : {landing.s3_key}")
 
 if __name__ == "__main__":
     main()
