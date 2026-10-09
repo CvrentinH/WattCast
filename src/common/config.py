@@ -1,5 +1,7 @@
 from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=("../../.env", "../.env", ".env"),
@@ -16,8 +18,9 @@ class Settings(BaseSettings):
     MINIO_ROOT_PASSWORD: str
     MINIO_ENDPOINT: str
     MINIO_SECURE: bool = False
-    MINIO_BUCKET_BRONZE: str = "bucket-bronze"
-    MINIO_BUCKET_SILVER: str = "bucket-silver"
+    MINIO_BUCKET_LANDING: str = "1-bucket-landing"
+    MINIO_BUCKET_BRONZE: str = "2-bucket-bronze"
+    MINIO_BUCKET_SILVER: str = "3-bucket-silver"
 
     REDIS_HOST: str
     REDIS_PORT: int

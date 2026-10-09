@@ -5,12 +5,13 @@ from common.clients import MinioClient
 from common.config import Settings
 
 
-class BaseFetcher(ABC):
-	def __init__(self, settings: Settings) -> None:
+class BaseTransformer(ABC):
+	def __init__(self, settings: Settings, source_name: str, target_name: str) -> None:
 		self.settings = settings
 		client = MinioClient(settings).client
-		self.bucket = BucketS3(client, settings.MINIO_BUCKET_LANDING)
+		self.source_bucket = BucketS3(client, source_name)
+		self.bucket = BucketS3(client, target_name)
 
 	@abstractmethod
-	def fetch(self) -> None:
+	def transform(self) -> None:
 		pass

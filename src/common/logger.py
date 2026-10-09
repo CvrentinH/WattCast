@@ -1,6 +1,8 @@
 import logging
 from logging.handlers import RotatingFileHandler
+
 from pythonjsonlogger.json import JsonFormatter
+
 
 def setup_logger(name: str = "wattcast"):
     logger = logging.getLogger(name)
@@ -8,11 +10,11 @@ def setup_logger(name: str = "wattcast"):
 
     if not logger.handlers:
         formatter = JsonFormatter("%(asctime)s %(levelname)s %(name)s %(message)s")
-        
+
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-           
+
         file_handler = RotatingFileHandler(
             "app.log", maxBytes=2000000, backupCount=5, encoding="utf-8"
         )

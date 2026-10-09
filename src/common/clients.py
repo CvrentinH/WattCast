@@ -1,8 +1,9 @@
+import boto3
+import redis
+from botocore.client import Config
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
-import redis
-import boto3
-from botocore.client import Config
+
 from common.config import get_settings
 
 settings = get_settings()
@@ -64,7 +65,7 @@ class MinioClient:
 
 
     def init_bucket(self):
-            buckets_to_create = [self.settings.MINIO_BUCKET_BRONZE, self.settings.MINIO_BUCKET_SILVER]
+            buckets_to_create = [self.settings.MINIO_BUCKET_LANDING, self.settings.MINIO_BUCKET_BRONZE, self.settings.MINIO_BUCKET_SILVER]
             response = self.client.list_buckets()
             existing_buckets = {b["Name"] for b in response.get("Buckets", [])}
 
