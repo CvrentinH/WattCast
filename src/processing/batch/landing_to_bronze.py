@@ -15,7 +15,9 @@ class IngestTransformer(BaseTransformer):
 
             body = self.source_bucket.read(key)
             path = PurePosixPath(key.lower())
-            print(path)
+            if path.suffix != ".csv" and path.suffix != ".zip":
+                raise ValueError(f"Invalid suffix type '{path.suffix}'")
+
             if path.suffix == ".zip":
                 body = convert_to_csv(unzip(body))
                 path = path.with_suffix(".csv")
