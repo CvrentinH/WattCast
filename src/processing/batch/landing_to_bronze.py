@@ -14,8 +14,8 @@ class IngestTransformer(BaseTransformer):
                 continue
 
             body = self.source_bucket.read(key)
-
             path = PurePosixPath(key.lower())
+            print(path)
             if path.suffix == ".zip":
                 body = convert_to_csv(unzip(body))
                 path = path.with_suffix(".csv")
