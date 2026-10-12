@@ -54,7 +54,7 @@ services:
       /bin/sh -c " until /usr/bin/mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
         echo 'En attente de MinIO...';
         sleep 1;
-      done; /usr/bin/mc mb local/bucket-silver --ignore-existing; /usr/bin/mc mb local/bucket-bronze --ignore-existing; exit 0; "
+      done; /usr/bin/mc mb local/3-bucket-silver --ignore-existing; /usr/bin/mc mb local/2-bucket-bronze --ignore-existing; /usr/bin/mc mb local/1-bucket-landing --ignore-existing; exit 0; "
     mem_limit: 256m
 
 volumes:

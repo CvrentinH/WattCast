@@ -1,10 +1,11 @@
-.PHONY: help core batch stream down
+.PHONY: help core batch stream down main
 
 help:
 	@echo "     make core : lance le compose core (postgres, pgadmin, minio)"
 	@echo "     make batch : lance le compose batch (airflow, spark)"
 	@echo "     make stream : lance le compose stream (kafka, flink, redis)"
 	@echo "     make down : ferme tous les compose"
+	@echo "     make main : lance uv run sur le module main"
 
 core:
 	docker compose -p wattcast-core --env-file .env -f infrastructure/docker-compose.core.yml up -d --remove-orphans
@@ -21,3 +22,6 @@ down:
 	docker compose -p wattcast-core --env-file .env -f infrastructure/docker-compose.core.yml down
 	docker compose -p wattcast-batch --env-file .env -f infrastructure/docker-compose.batch.yml down
 	docker compose -p wattcast-stream --env-file .env -f infrastructure/docker-compose.stream.yml down
+
+main:
+	cd src && uv run python -m main

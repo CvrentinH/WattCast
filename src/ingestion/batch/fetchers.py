@@ -1,20 +1,16 @@
 from abc import ABC, abstractmethod
 
+from common.bucket_s3 import BucketS3
 from common.clients import MinioClient
-from common.config import get_settings
+from common.config import Settings
+
 
 class BaseFetcher(ABC):
-    def __init__(self, settings):
-        self.settings = settings
-        self.minio_client = MinioClient(settings)
-        self.bucket = self.settings.MINIO_BUCKET_BRONZE
+	def __init__(self, settings: Settings) -> None:
+		self.settings = settings
+		client = MinioClient(settings).client
+		self.bucket = BucketS3(client, settings.MINIO_BUCKET_LANDING)
 
-    @abstractmethod
-    def fetch(self):
-        pass
-
-    def upload_to_bronze(self, s3_key, s3_body):
-        return self.minio_client.client.put_object(Bucket = self.bucket, Key = s3_key, Body = s3_body)
-
-if __name__ == "__main__":
-    settings = get_settings()
+	@abstractmethod
+	def fetch(self) -> None:
+		pass
