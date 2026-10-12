@@ -19,3 +19,20 @@ dependencies = [
     "sqlalchemy>=2.0.54",
     "xlrd>=2.0.2",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.0",
+]
+
+[tool.ruff]
+line-length = 120
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+[tool.ruff.format]
+indent-style = "tab"
