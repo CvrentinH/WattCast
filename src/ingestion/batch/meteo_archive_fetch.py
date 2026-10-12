@@ -78,12 +78,7 @@ class OpenMeteo(BaseFetcher):
     def __init__(self, settings, year: int, latitude: float, longitude: float):
         super().__init__(settings)
         self.url = OPENMETEO_URL_BASE
-        self.s3_key = (
-            S3_KEY_TEMPLATE
-            .replace("$SOURCE", "openmeteo")
-            .replace("$YEAR", str(year))
-            .replace("$EXT", "csv")
-        )
+        self.s3_key = S3_KEY_TEMPLATE("openmeteo", str(year), "csv")
         self.request = OpenMeteoRequest(
             year=year,
             latitude=latitude,

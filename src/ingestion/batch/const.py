@@ -3,7 +3,7 @@ ECO2MIX_URL_FILE = "eCO2mix_RTE_Annuel-Definitif_$YEAR.zip"
 
 OPENMETEO_URL_BASE = "https://archive-api.open-meteo.com/v1/archive"
 
-S3_KEY_TEMPLATE = "$SOURCE/year=$YEAR/$SOURCE_$YEAR.$EXT"
+S3_KEY_TEMPLATE = lambda source, year, ext: f"{source}/year={year}/{source}_{year}.{ext}"
 
 OPENMETEO_DATA_REQUEST = (
     "temperature_2m",

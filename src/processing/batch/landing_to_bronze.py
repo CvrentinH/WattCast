@@ -4,7 +4,7 @@ from processing.batch.file_utils import convert_to_csv, unzip
 from processing.batch.transformers import BaseTransformer
 
 
-class Landing_to_Bronze(BaseTransformer):
+class IngestTransformer(BaseTransformer):
     def __init__(self, settings):
         super().__init__(settings, settings.MINIO_BUCKET_LANDING, settings.MINIO_BUCKET_BRONZE)
 
@@ -20,7 +20,7 @@ class Landing_to_Bronze(BaseTransformer):
                 body = convert_to_csv(unzip(body))
                 path = path.with_suffix(".csv")
 
-            self.bucket.write(str(path), body)
+            self.target_bucket.write(str(path), body)
 
     def ingest_into_table(self):
         """

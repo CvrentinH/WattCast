@@ -10,7 +10,7 @@ class BaseTransformer(ABC):
 		self.settings = settings
 		client = MinioClient(settings).client
 		self.source_bucket = BucketS3(client, source_name)
-		self.bucket = BucketS3(client, target_name)
+		self.target_bucket = BucketS3(client, target_name)
 
 	@abstractmethod
 	def transform(self) -> None:
