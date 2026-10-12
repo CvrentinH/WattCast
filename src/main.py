@@ -24,7 +24,6 @@ def main():
     landing = IngestTransformer(settings)
     print("transform raw -> bronze")
     landing.transform()
-    print(f"saved path {landing.target_bucket}")
 
 if __name__ == "__main__":
     main()
