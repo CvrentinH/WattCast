@@ -1,1 +1,0 @@
-faire le process bronze to silver sans spark pour essayer d'abord puis le remplacer pour bien comprendre la logique
