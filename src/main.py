@@ -1,7 +1,7 @@
 from common.config import get_settings
 from ingestion.batch.eco2mix_fetch import Eco2Mix
 from ingestion.batch.meteo_archive_fetch import OpenMeteo
-from processing.batch.landing_to_bronze import IngestTransformer
+from processing.batch.landing_to_bronze import BronzeTransformer
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
 
     # Test Landing RAW to BRONZE
 
-    landing = IngestTransformer(settings)
+    landing = BronzeTransformer(settings)
     print("transform raw -> bronze")
     landing.transform()
 

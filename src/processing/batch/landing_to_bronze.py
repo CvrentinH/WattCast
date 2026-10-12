@@ -4,7 +4,7 @@ from processing.batch.file_utils import convert_to_csv, unzip
 from processing.batch.transformers import BaseTransformer
 
 
-class IngestTransformer(BaseTransformer):
+class BronzeTransformer(BaseTransformer):
     def __init__(self, settings):
         super().__init__(settings, settings.MINIO_BUCKET_LANDING, settings.MINIO_BUCKET_BRONZE)
 
