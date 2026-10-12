@@ -5,13 +5,12 @@ from ingestion.batch.fetchers import BaseFetcher
 
 
 class Eco2Mix(BaseFetcher):
+	def __init__(self, settings, year: int):
+		super().__init__(settings)
+		self.url = ECO2MIX_URL_BASE + ECO2MIX_URL_FILE.replace("$YEAR", str(year))
+		self.s3_key = S3_KEY_TEMPLATE("eco2mix", str(year), "zip")
 
-    def __init__(self, settings, year: int):
-        super().__init__(settings)
-        self.url = ECO2MIX_URL_BASE + ECO2MIX_URL_FILE.replace("$YEAR", str(year))
-        self.s3_key = S3_KEY_TEMPLATE("eco2mix", str(year), "zip")
-
-    def fetch(self) -> None:
-        response = requests.get(self.url)
-        response.raise_for_status()
-        self.bucket.write(self.s3_key, response.content)
+	def fetch(self) -> None:
+		response = requests.get(self.url)
+		response.raise_for_status()
+		self.bucket.write(self.s3_key, response.content)
