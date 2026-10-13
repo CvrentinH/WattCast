@@ -24,4 +24,4 @@ down:
 	docker compose -p wattcast-stream --env-file .env -f infrastructure/docker-compose.stream.yml down
 
 main:
-	cd src && uv run python -m main
+	pushd src && uv run python -m main && popd
