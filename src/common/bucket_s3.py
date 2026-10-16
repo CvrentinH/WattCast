@@ -23,7 +23,7 @@ class BucketS3:
 	def write(self, key: str, body: bytes) -> dict[str, Any]:
 		if not key:
 			raise ValueError("Object key is required")
-
+		# This bloc if left untouched but isn't reachable, need to see why
 		if body is None:
 			raise ValueError("Object body is required")
 
