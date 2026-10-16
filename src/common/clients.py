@@ -4,7 +4,7 @@ from botocore.client import Config
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from common.config import get_settings
+from common.config import Settings, get_settings
 
 settings = get_settings()
 
@@ -12,7 +12,7 @@ settings = get_settings()
 
 
 class RedisClient:
-	def __init__(self, settings):
+	def __init__(self, settings: Settings) -> None:
 		self.settings = settings
 
 		self.r = redis.Redis(
@@ -29,7 +29,7 @@ class RedisClient:
 
 
 class PostgreClient:
-	def __init__(self, settings):
+	def __init__(self, settings: Settings) -> None:
 		self.settings = settings
 		DB_URL = self.settings.postgres_sync_url
 
@@ -42,7 +42,7 @@ class PostgreClient:
 
 
 class MinioClient:
-	def __init__(self, settings):
+	def __init__(self, settings: Settings) -> None:
 		self.settings = settings
 
 		config_client = Config(
@@ -61,7 +61,7 @@ class MinioClient:
 		)
 		self.init_bucket()
 
-	def init_bucket(self):
+	def init_bucket(self) -> None:
 		buckets_to_create = [
 			self.settings.MINIO_BUCKET_LANDING,
 			self.settings.MINIO_BUCKET_BRONZE,

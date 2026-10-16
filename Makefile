@@ -1,4 +1,4 @@
-.PHONY: help core batch stream down main
+.PHONY: help core batch stream down main ty ruff
 
 help:
 	@echo "     make core : lance le compose core (postgres, pgadmin, minio)"
@@ -6,6 +6,7 @@ help:
 	@echo "     make stream : lance le compose stream (kafka, flink, redis)"
 	@echo "     make down : ferme tous les compose"
 	@echo "     make main : lance uv run sur le module main"
+	@echo "     make check : lance make ty & make ruff"
 
 core:
 	docker compose -p wattcast-core --env-file .env -f infrastructure/docker-compose.core.yml up -d --remove-orphans
@@ -24,4 +25,12 @@ down:
 	docker compose -p wattcast-stream --env-file .env -f infrastructure/docker-compose.stream.yml down
 
 main:
-	cd src && uv run python -m main
+	cd src && uv run python -m main && cd ..
+
+ty:
+	uv run ty check
+
+ruff:
+	uv run ruff check .
+
+check: ty ruff

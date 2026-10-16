@@ -4,11 +4,11 @@ from ingestion.batch.meteo_archive_fetch import OpenMeteo
 from processing.batch.landing_to_bronze import BronzeTransformer
 
 
-def main():
+def main() -> None:
 	settings = get_settings()
 
-	eco2mix = Eco2Mix(settings, year=2024)
-	meteo = OpenMeteo(settings, year=2024, latitude=46, longitude=2)
+	eco2mix = Eco2Mix(settings, year=2023)
+	meteo = OpenMeteo(settings, year=2023, latitude=46, longitude=2)
 
 	print("fetch de eco2mix")
 	eco2mix.fetch()

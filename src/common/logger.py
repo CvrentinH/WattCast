@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 from pythonjsonlogger.json import JsonFormatter
 
 
-def setup_logger(name: str = "wattcast"):
+def setup_logger(name: str = "wattcast") -> logging.Logger:
 	logger = logging.getLogger(name)
 	logger.setLevel(logging.INFO)
 

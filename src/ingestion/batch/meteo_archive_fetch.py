@@ -1,13 +1,15 @@
 from dataclasses import dataclass
+from typing import Any
 
+import niquests
 import numpy as np
 import openmeteo_requests
 import pandas as pd
-import requests_cache
 from numpy.typing import NDArray
 from openmeteo_sdk.VariablesWithTime import VariablesWithTime
-from retry_requests import retry
+from urllib3.util import Retry
 
+from common.config import Settings
 from ingestion.batch.const import (
 	OPENMETEO_DATA_REQUEST,
 	OPENMETEO_URL_BASE,
@@ -22,7 +24,7 @@ class OpenMeteoRequest:
 	latitude: float
 	longitude: float
 
-	def to_raw(self) -> dict:
+	def to_raw(self) -> dict[str, Any]:
 		return {
 			"latitude": self.latitude,
 			"longitude": self.longitude,
@@ -35,7 +37,7 @@ class OpenMeteoRequest:
 class OpenMeteoResponse:
 	start: pd.Timestamp
 	end: pd.Timestamp
-	freq: pd.Timedelta
+	freq: int
 	data: dict[str, NDArray[np.float32]]
 
 	def __init__(self, hourly: VariablesWithTime) -> None:
@@ -44,7 +46,7 @@ class OpenMeteoResponse:
 
 		self.start = pd.to_datetime(hourly.Time(), unit="s", utc=True)
 		self.end = pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True)
-		self.freq = pd.Timedelta(seconds=hourly.Interval())
+		self.freq = hourly.Interval()
 		self.data = {}
 
 		for i, label in enumerate(OPENMETEO_DATA_REQUEST):
@@ -63,7 +65,7 @@ class OpenMeteoResponse:
 			"date": pd.date_range(
 				start=self.start,
 				end=self.end,
-				freq=self.freq,
+				freq= pd.Timedelta(seconds=self.freq),
 				inclusive="left",
 			),
 			**self.data,
@@ -73,7 +75,7 @@ class OpenMeteoResponse:
 
 
 class OpenMeteo(BaseFetcher):
-	def __init__(self, settings, year: int, latitude: float, longitude: float):
+	def __init__(self, settings: Settings, year: int, latitude: float, longitude: float) -> None:
 		super().__init__(settings)
 		self.url = OPENMETEO_URL_BASE
 		self.s3_key = S3_KEY_TEMPLATE("openmeteo", str(year), "csv")
@@ -82,9 +84,8 @@ class OpenMeteo(BaseFetcher):
 			latitude=latitude,
 			longitude=longitude,
 		)
-		cache_session = requests_cache.CachedSession(".cache", expire_after=-1)
-		retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
-		self.client = openmeteo_requests.Client(session=retry_session)
+		session = niquests.Session(retries=Retry(total=5, backoff_factor=0.2))
+		self.client = openmeteo_requests.Client(session=session)
 
 	def fetch(self) -> None:
 		response = self.client.weather_api(self.url, params=self.request.to_raw())
