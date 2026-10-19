@@ -1,9 +1,9 @@
 from collections.abc import Iterator
 from contextlib import closing
-from typing import Any
 
 from botocore.client import BaseClient
 from botocore.exceptions import BotoCoreError, ClientError
+from mypy_boto3_s3.type_defs import PutObjectOutputTypeDef
 
 from common.exceptions import StorageError
 
@@ -23,7 +23,7 @@ class BucketS3:
 		with closing(self.client.get_object(Bucket=self.name, Key=key)["Body"]) as stream:
 			return stream.read()
 
-	def write(self, key: str, body: bytes) -> dict[str, Any]:
+	def write(self, key: str, body: bytes) -> PutObjectOutputTypeDef:
 		if not key:
 			raise ValueError("Object key is required")
 
