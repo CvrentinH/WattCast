@@ -1,4 +1,4 @@
-.PHONY: help core batch stream down main ty ruff
+.PHONY: help core batch stream down main ty ruff push
 
 help:
 	@echo "     make core : lance le compose core (postgres, pgadmin, minio)"
@@ -34,3 +34,6 @@ ruff:
 	uv run ruff check .
 
 check: ty ruff
+
+push:
+	@python -c "import subprocess, sys; msg = input('Message de commit : ').strip(); sys.exit('Annulation: Message vide.') if not msg else None; subprocess.run(['git', 'add', '.']); res = subprocess.run(['git', 'commit', '-m', msg]); res.returncode == 0 and subprocess.run(['git', 'push'])"
