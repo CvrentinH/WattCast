@@ -78,15 +78,5 @@ class MinioClient:
 		existing_buckets = {b["Name"] for b in response.get("Buckets", [])}
 
 		for bucket_name in buckets_to_create:
-			if bucket_name in existing_buckets:
-				continue
-			try:
+			if bucket_name not in existing_buckets:
 				self.client.create_bucket(Bucket=bucket_name)
-			except ClientError as e:
-
-				if e.response["Error"]["Code"] == "BucketAlreadyOwnedByYou":
-					continue
-				raise BucketInitError(f"Création du bucket '{bucket_name}' impossible") from e
-
-			except BotoCoreError as e:
-				raise BucketInitError(f"Erreur réseau lors de la création de '{bucket_name}'") from e
