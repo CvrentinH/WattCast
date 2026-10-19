@@ -1,15 +1,15 @@
 from collections.abc import Iterator
 from contextlib import closing
 
-from botocore.client import BaseClient
 from botocore.exceptions import BotoCoreError, ClientError
+from mypy_boto3_s3 import S3Client
 from mypy_boto3_s3.type_defs import PutObjectOutputTypeDef
 
 from common.exceptions import StorageError
 
 
 class BucketS3:
-	def __init__(self, client: BaseClient, name: str) -> None:
+	def __init__(self, client: S3Client, name: str) -> None:
 		if not name:
 			raise ValueError("Bucket name is required")
 

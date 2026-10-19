@@ -11,7 +11,7 @@ from openmeteo_requests.Client import OpenMeteoRequestsError
 from openmeteo_sdk.VariablesWithTime import VariablesWithTime
 from urllib3.util import Retry
 
-from common.config import Settings
+from common.config import MinioSettings
 from common.exceptions import FetchError
 from ingestion.batch.const import (
 	OPENMETEO_BACKOFF_FACTOR,
@@ -70,7 +70,7 @@ class OpenMeteoResponse:
 			"date": pd.date_range(
 				start=self.start,
 				end=self.end,
-				freq= pd.Timedelta(seconds=self.freq),
+				freq=pd.Timedelta(seconds=self.freq),
 				inclusive="left",
 			),
 			**self.data,
@@ -80,7 +80,7 @@ class OpenMeteoResponse:
 
 
 class OpenMeteo(BaseFetcher):
-	def __init__(self, settings: Settings, year: int, latitude: float, longitude: float) -> None:
+	def __init__(self, settings: MinioSettings, year: int, latitude: float, longitude: float) -> None:
 		super().__init__(settings)
 		self.url = OPENMETEO_URL_BASE
 		self.s3_key = S3_KEY_TEMPLATE("openmeteo", str(year), "csv")

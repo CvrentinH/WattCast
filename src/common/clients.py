@@ -5,16 +5,14 @@ from botocore.exceptions import BotoCoreError, ClientError
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from common.config import Settings, get_settings
+from common.config import MinioSettings, PostgreSettings, RedisSettings
 from common.exceptions import BucketInitError
-
-settings = get_settings()
 
 # REDIS
 
 
 class RedisClient:
-	def __init__(self, settings: Settings) -> None:
+	def __init__(self, settings: RedisSettings) -> None:
 		self.settings = settings
 
 		self.r = redis.Redis(
@@ -31,12 +29,12 @@ class RedisClient:
 
 
 class PostgreClient:
-	def __init__(self, settings: Settings) -> None:
+	def __init__(self, settings: PostgreSettings) -> None:
 		self.settings = settings
+
 		DB_URL = self.settings.postgres_sync_url
 
 		self.engine = create_engine(DB_URL, echo=False, pool_size=5, max_overflow=10)
-
 		self.session_factory = sessionmaker(bind=self.engine, expire_on_commit=False, autoflush=False)
 
 
@@ -44,9 +42,10 @@ class PostgreClient:
 
 
 class MinioClient:
-	def __init__(self, settings: Settings) -> None:
+	def __init__(self, settings: MinioSettings) -> None:
 		self.settings = settings
-
+		print(self.settings)
+		print(settings)
 		config_client = Config(
 			connect_timeout=1,
 			read_timeout=1,

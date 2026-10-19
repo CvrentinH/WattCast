@@ -1,12 +1,12 @@
 from pathlib import PurePosixPath
 
-from common.config import Settings
+from common.config import MinioSettings
 from processing.batch.file_utils import unzip, xls_to_csv
 from processing.batch.transformers import BaseTransformer
 
 
 class BronzeTransformer(BaseTransformer):
-	def __init__(self, settings: Settings) -> None:
+	def __init__(self, settings: MinioSettings) -> None:
 		super().__init__(settings, settings.MINIO_BUCKET_LANDING, settings.MINIO_BUCKET_BRONZE)
 
 	def transform(self) -> None:

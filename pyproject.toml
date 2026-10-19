@@ -21,10 +21,6 @@ dependencies = [
     "xlrd>=2.0.2",
 ]
 
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
-
 [dependency-groups]
 dev = [
     "ruff>=0.17.0",
