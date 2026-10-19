@@ -14,11 +14,10 @@ def main() -> None:
 		level=logging.INFO,
 		format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 	)
-	s3_client = get_s3_client()
 
 	try:
-		eco2mix = Eco2Mix(s3_client, year=2023)
-		meteo = OpenMeteo(s3_client, year=2023, latitude=46, longitude=2)
+		eco2mix = Eco2Mix(year=2023)
+		meteo = OpenMeteo(year=2023, latitude=46, longitude=2)
 		print("fetch de eco2mix")
 		eco2mix.fetch()
 		print(f"saved path : {eco2mix.s3_key}")

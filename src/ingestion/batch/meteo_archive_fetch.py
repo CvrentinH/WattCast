@@ -80,8 +80,7 @@ class OpenMeteoResponse:
 
 
 class OpenMeteo(BaseFetcher):
-	def __init__(self, client: S3Client, year: int, latitude: float, longitude: float) -> None:
-		super().__init__(client)
+	def __init__(self, year: int, latitude: float, longitude: float) -> None:
 		self.url = OPENMETEO_URL_BASE
 		self.s3_key = S3_KEY_TEMPLATE("openmeteo", str(year), "csv")
 		self.request = OpenMeteoRequest(
