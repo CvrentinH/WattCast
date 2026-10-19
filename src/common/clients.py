@@ -44,8 +44,6 @@ class PostgreClient:
 class MinioClient:
 	def __init__(self, settings: MinioSettings) -> None:
 		self.settings = settings
-		print(self.settings)
-		print(settings)
 		config_client = Config(
 			connect_timeout=1,
 			read_timeout=1,
