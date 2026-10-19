@@ -1,30 +1,39 @@
+import logging
+import sys
+
 from common.config import get_settings
+from common.exceptions import PipelineError
 from ingestion.batch.eco2mix_fetch import Eco2Mix
 from ingestion.batch.meteo_archive_fetch import OpenMeteo
 from processing.batch.landing_to_bronze import BronzeTransformer
 
+logger = logging.getLogger(__name__)
 
-def main() -> None:
+
+def main() -> int:
+	logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 	settings = get_settings()
 
-	eco2mix = Eco2Mix(settings, year=2023)
-	meteo = OpenMeteo(settings, year=2023, latitude=46, longitude=2)
+	try:
+		eco2mix = Eco2Mix(settings, year=2023)
+		meteo = OpenMeteo(settings, year=2023, latitude=46, longitude=2)
 
-	print("fetch de eco2mix")
-	eco2mix.fetch()
-	print(f"saved path : {eco2mix.s3_key}")
-	print("eco2mix dans minio")
-	print("fetch de openmeteo")
-	meteo.fetch()
-	print(f"saved path : {meteo.s3_key}")
-	print("openmeteo dans minio")
+		logger.info("Fetching eco2mix")
+		eco2mix.fetch()
+		logger.info("eco2mix saved: %s", eco2mix.s3_key)
 
-	# Test Landing RAW to BRONZE
+		logger.info("Fetching openmeteo")
+		meteo.fetch()
+		logger.info("openmeteo saved: %s", meteo.s3_key)
 
-	landing = BronzeTransformer(settings)
-	print("transform raw -> bronze")
-	landing.transform()
+		logger.info("Transforming landing -> bronze")
+		BronzeTransformer(settings).transform()
+	except PipelineError:
+		logger.exception("Pipeline failed")
+		return 1
+
+	return 0
 
 
 if __name__ == "__main__":
-	main()
+	sys.exit(main())

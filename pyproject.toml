@@ -20,6 +20,10 @@ dependencies = [
     "xlrd>=2.0.2",
 ]
 
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
 [dependency-groups]
 dev = [
     "ruff>=0.17.0",
@@ -36,8 +40,8 @@ exclude = [
 [tool.ruff.lint]
 extend-select = ["ANN"]
 
-[tool.ty.rules]
-missing-type-argument = "error"
-
 [tool.ruff.format]
 indent-style = "tab"
+
+[tool.ty.rules]
+missing-type-argument = "error"

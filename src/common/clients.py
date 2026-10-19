@@ -1,10 +1,12 @@
 import boto3
 import redis
 from botocore.client import Config
+from botocore.exceptions import BotoCoreError, ClientError
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from common.config import Settings, get_settings
+from common.exceptions import BucketInitError
 
 settings = get_settings()
 
@@ -67,9 +69,24 @@ class MinioClient:
 			self.settings.MINIO_BUCKET_BRONZE,
 			self.settings.MINIO_BUCKET_SILVER,
 		]
-		response = self.client.list_buckets()
+
+		try:
+			response = self.client.list_buckets()
+		except (ClientError, BotoCoreError) as e:
+			raise BucketInitError("Impossible de lister les buckets MinIO") from e
+
 		existing_buckets = {b["Name"] for b in response.get("Buckets", [])}
 
 		for bucket_name in buckets_to_create:
-			if bucket_name not in existing_buckets:
+			if bucket_name in existing_buckets:
+				continue
+			try:
 				self.client.create_bucket(Bucket=bucket_name)
+			except ClientError as e:
+
+				if e.response["Error"]["Code"] == "BucketAlreadyOwnedByYou":
+					continue
+				raise BucketInitError(f"Création du bucket '{bucket_name}' impossible") from e
+
+			except BotoCoreError as e:
+				raise BucketInitError(f"Erreur réseau lors de la création de '{bucket_name}'") from e

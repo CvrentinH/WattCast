@@ -3,6 +3,9 @@ from contextlib import closing
 from typing import Any
 
 from botocore.client import BaseClient
+from botocore.exceptions import BotoCoreError, ClientError
+
+from common.exceptions import StorageError
 
 
 class BucketS3:
@@ -23,11 +26,11 @@ class BucketS3:
 	def write(self, key: str, body: bytes) -> dict[str, Any]:
 		if not key:
 			raise ValueError("Object key is required")
-		# This bloc if left untouched but isn't reachable, need to see why
-		if body is None:
-			raise ValueError("Object body is required")
 
-		return self.client.put_object(Bucket=self.name, Key=key, Body=body)
+		try:
+			return self.client.put_object(Bucket=self.name, Key=key, Body=body)
+		except (ClientError, BotoCoreError) as e:
+			raise StorageError(f"Unable to write '{self.name}/{key}'") from e
 
 	def list_keys(self) -> Iterator[str]:
 		paginator = self.client.get_paginator("list_objects_v2")

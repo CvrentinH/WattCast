@@ -5,13 +5,18 @@ import niquests
 import numpy as np
 import openmeteo_requests
 import pandas as pd
+from niquests.exceptions import RequestException
 from numpy.typing import NDArray
+from openmeteo_requests.Client import OpenMeteoRequestsError
 from openmeteo_sdk.VariablesWithTime import VariablesWithTime
 from urllib3.util import Retry
 
 from common.config import Settings
+from common.exceptions import FetchError
 from ingestion.batch.const import (
+	OPENMETEO_BACKOFF_FACTOR,
 	OPENMETEO_DATA_REQUEST,
+	OPENMETEO_MAX_RETRIES,
 	OPENMETEO_URL_BASE,
 	S3_KEY_TEMPLATE,
 )
@@ -84,13 +89,17 @@ class OpenMeteo(BaseFetcher):
 			latitude=latitude,
 			longitude=longitude,
 		)
-		session = niquests.Session(retries=Retry(total=5, backoff_factor=0.2))
+		session = niquests.Session(retries=Retry(total=OPENMETEO_MAX_RETRIES, backoff_factor=OPENMETEO_BACKOFF_FACTOR))
 		self.client = openmeteo_requests.Client(session=session)
 
 	def fetch(self) -> None:
-		response = self.client.weather_api(self.url, params=self.request.to_raw())
+		try:
+			response = self.client.weather_api(self.url, params=self.request.to_raw())
+		except (RequestException, OpenMeteoRequestsError) as e:
+			raise FetchError(f"Open-Meteo request failed (year={self.request.year})") from e
+
 		raw_hourly = response[0].Hourly()
 		if raw_hourly is None:
-			raise ValueError("Open-Meteo response has no hourly data")
+			raise FetchError("Open-Meteo response has no hourly data")
 
 		self.bucket.write(self.s3_key, OpenMeteoResponse(raw_hourly).to_csv())

@@ -12,3 +12,6 @@ OPENMETEO_DATA_REQUEST = (
 	"cloud_cover",
 	"relative_humidity_2m",
 )
+
+OPENMETEO_MAX_RETRIES = 5
+OPENMETEO_BACKOFF_FACTOR = 0.2
