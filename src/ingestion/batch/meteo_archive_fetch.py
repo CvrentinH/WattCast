@@ -5,13 +5,13 @@ import niquests
 import numpy as np
 import openmeteo_requests
 import pandas as pd
+from mypy_boto3_s3 import S3Client
 from niquests.exceptions import RequestException
 from numpy.typing import NDArray
 from openmeteo_requests.Client import OpenMeteoRequestsError
 from openmeteo_sdk.VariablesWithTime import VariablesWithTime
 from urllib3.util import Retry
 
-from common.config import MinioSettings
 from common.exceptions import FetchError
 from ingestion.batch.const import (
 	OPENMETEO_BACKOFF_FACTOR,
@@ -80,8 +80,8 @@ class OpenMeteoResponse:
 
 
 class OpenMeteo(BaseFetcher):
-	def __init__(self, settings: MinioSettings, year: int, latitude: float, longitude: float) -> None:
-		super().__init__(settings)
+	def __init__(self, client: S3Client, year: int, latitude: float, longitude: float) -> None:
+		super().__init__(client)
 		self.url = OPENMETEO_URL_BASE
 		self.s3_key = S3_KEY_TEMPLATE("openmeteo", str(year), "csv")
 		self.request = OpenMeteoRequest(

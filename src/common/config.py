@@ -30,9 +30,6 @@ class MinioSettings(WattCastSettings):
 	MINIO_ROOT_PASSWORD: str
 	MINIO_ENDPOINT: str
 	MINIO_SECURE: bool = False
-	MINIO_BUCKET_LANDING: str = "1-bucket-landing"
-	MINIO_BUCKET_BRONZE: str = "2-bucket-bronze"
-	MINIO_BUCKET_SILVER: str = "3-bucket-silver"
 
 	@property
 	def minio_url(self) -> str:
