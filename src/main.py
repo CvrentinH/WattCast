@@ -1,6 +1,5 @@
 import logging
 
-from common.clients import get_s3_client
 from common.exceptions import PipelineError
 from ingestion.batch.eco2mix_fetch import Eco2Mix
 from ingestion.batch.meteo_archive_fetch import OpenMeteo

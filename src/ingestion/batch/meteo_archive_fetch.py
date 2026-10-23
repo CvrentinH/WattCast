@@ -5,7 +5,6 @@ import niquests
 import numpy as np
 import openmeteo_requests
 import pandas as pd
-from mypy_boto3_s3 import S3Client
 from niquests.exceptions import RequestException
 from numpy.typing import NDArray
 from openmeteo_requests.Client import OpenMeteoRequestsError
@@ -81,6 +80,7 @@ class OpenMeteoResponse:
 
 class OpenMeteo(BaseFetcher):
 	def __init__(self, year: int, latitude: float, longitude: float) -> None:
+		super().__init__()
 		self.url = OPENMETEO_URL_BASE
 		self.s3_key = S3_KEY_TEMPLATE("openmeteo", str(year), "csv")
 		self.request = OpenMeteoRequest(
