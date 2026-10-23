@@ -1,15 +1,21 @@
 from dataclasses import dataclass
+from typing import Any
 
+import niquests
 import numpy as np
 import openmeteo_requests
 import pandas as pd
-import requests_cache
+from niquests.exceptions import RequestException
 from numpy.typing import NDArray
+from openmeteo_requests.Client import OpenMeteoRequestsError
 from openmeteo_sdk.VariablesWithTime import VariablesWithTime
-from retry_requests import retry
+from urllib3.util import Retry
 
+from common.exceptions import FetchError
 from ingestion.batch.const import (
+	OPENMETEO_BACKOFF_FACTOR,
 	OPENMETEO_DATA_REQUEST,
+	OPENMETEO_MAX_RETRIES,
 	OPENMETEO_URL_BASE,
 	S3_KEY_TEMPLATE,
 )
@@ -22,7 +28,7 @@ class OpenMeteoRequest:
 	latitude: float
 	longitude: float
 
-	def to_raw(self) -> dict:
+	def to_raw(self) -> dict[str, Any]:
 		return {
 			"latitude": self.latitude,
 			"longitude": self.longitude,
@@ -35,7 +41,7 @@ class OpenMeteoRequest:
 class OpenMeteoResponse:
 	start: pd.Timestamp
 	end: pd.Timestamp
-	freq: pd.Timedelta
+	freq: int
 	data: dict[str, NDArray[np.float32]]
 
 	def __init__(self, hourly: VariablesWithTime) -> None:
@@ -44,7 +50,7 @@ class OpenMeteoResponse:
 
 		self.start = pd.to_datetime(hourly.Time(), unit="s", utc=True)
 		self.end = pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True)
-		self.freq = pd.Timedelta(seconds=hourly.Interval())
+		self.freq = hourly.Interval()
 		self.data = {}
 
 		for i, label in enumerate(OPENMETEO_DATA_REQUEST):
@@ -63,7 +69,7 @@ class OpenMeteoResponse:
 			"date": pd.date_range(
 				start=self.start,
 				end=self.end,
-				freq=self.freq,
+				freq=pd.Timedelta(seconds=self.freq),
 				inclusive="left",
 			),
 			**self.data,
@@ -73,8 +79,8 @@ class OpenMeteoResponse:
 
 
 class OpenMeteo(BaseFetcher):
-	def __init__(self, settings, year: int, latitude: float, longitude: float):
-		super().__init__(settings)
+	def __init__(self, year: int, latitude: float, longitude: float) -> None:
+		super().__init__()
 		self.url = OPENMETEO_URL_BASE
 		self.s3_key = S3_KEY_TEMPLATE("openmeteo", str(year), "csv")
 		self.request = OpenMeteoRequest(
@@ -82,14 +88,17 @@ class OpenMeteo(BaseFetcher):
 			latitude=latitude,
 			longitude=longitude,
 		)
-		cache_session = requests_cache.CachedSession(".cache", expire_after=-1)
-		retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
-		self.client = openmeteo_requests.Client(session=retry_session)
+		session = niquests.Session(retries=Retry(total=OPENMETEO_MAX_RETRIES, backoff_factor=OPENMETEO_BACKOFF_FACTOR))
+		self.client = openmeteo_requests.Client(session=session)
 
 	def fetch(self) -> None:
-		response = self.client.weather_api(self.url, params=self.request.to_raw())
+		try:
+			response = self.client.weather_api(self.url, params=self.request.to_raw())
+		except (RequestException, OpenMeteoRequestsError) as e:
+			raise FetchError(f"Open-Meteo request failed (year={self.request.year})") from e
+
 		raw_hourly = response[0].Hourly()
 		if raw_hourly is None:
-			raise ValueError("Open-Meteo response has no hourly data")
+			raise FetchError("Open-Meteo response has no hourly data")
 
 		self.bucket.write(self.s3_key, OpenMeteoResponse(raw_hourly).to_csv())

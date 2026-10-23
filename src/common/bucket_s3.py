@@ -1,12 +1,15 @@
 from collections.abc import Iterator
 from contextlib import closing
-from typing import Any
 
-from botocore.client import BaseClient
+from botocore.exceptions import BotoCoreError, ClientError
+from mypy_boto3_s3 import S3Client
+from mypy_boto3_s3.type_defs import PutObjectOutputTypeDef
+
+from common.exceptions import StorageError
 
 
 class BucketS3:
-	def __init__(self, client: BaseClient, name: str) -> None:
+	def __init__(self, client: S3Client, name: str) -> None:
 		if not name:
 			raise ValueError("Bucket name is required")
 
@@ -20,14 +23,14 @@ class BucketS3:
 		with closing(self.client.get_object(Bucket=self.name, Key=key)["Body"]) as stream:
 			return stream.read()
 
-	def write(self, key: str, body: bytes) -> dict[str, Any]:
+	def write(self, key: str, body: bytes) -> PutObjectOutputTypeDef:
 		if not key:
 			raise ValueError("Object key is required")
 
-		if body is None:
-			raise ValueError("Object body is required")
-
-		return self.client.put_object(Bucket=self.name, Key=key, Body=body)
+		try:
+			return self.client.put_object(Bucket=self.name, Key=key, Body=body)
+		except (ClientError, BotoCoreError) as e:
+			raise StorageError(f"Unable to write '{self.name}/{key}'") from e
 
 	def list_keys(self) -> Iterator[str]:
 		paginator = self.client.get_paginator("list_objects_v2")

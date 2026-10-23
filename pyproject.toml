@@ -4,7 +4,9 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.43.96",
+    "boto3-stubs[s3]>=1.43.114",
     "botocore>=1.43.96",
+    "niquests>=3.21.1",
     "numpy>=2.5.3",
     "openmeteo-requests>=1.7.5",
     "pandas>=3.0.5",
@@ -13,10 +15,9 @@ dependencies = [
     "pydantic-settings>=2.15.0",
     "python-json-logger>=4.2.0",
     "redis>=8.1.0",
-    "requests>=2.34.2",
-    "requests-cache>=1.3.3",
     "retry-requests>=2.0.0",
     "sqlalchemy>=2.0.54",
+    "ty>=0.0.89",
     "xlrd>=2.0.2",
 ]
 
@@ -33,5 +34,11 @@ exclude = [
     "pycache",
 ]
 
+[tool.ruff.lint]
+extend-select = ["ANN"]
+
 [tool.ruff.format]
 indent-style = "tab"
+
+[tool.ty.rules]
+missing-type-argument = "error"
