@@ -1,15 +1,13 @@
 from abc import ABC, abstractmethod
 
 from common.bucket_s3 import BucketS3
-from common.clients import MinioClient
-from common.config import Settings
+from common.clients import get_s3_client
+from ingestion.batch.const import TARGET_BUCKET
 
 
 class BaseFetcher(ABC):
-	def __init__(self, settings: Settings) -> None:
-		self.settings = settings
-		client = MinioClient(settings).client
-		self.bucket = BucketS3(client, settings.MINIO_BUCKET_LANDING)
+	def __init__(self) -> None:
+		self.bucket = BucketS3(get_s3_client(), TARGET_BUCKET)
 
 	@abstractmethod
 	def fetch(self) -> None:
