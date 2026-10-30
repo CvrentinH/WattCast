@@ -4,12 +4,12 @@ import boto3
 from botocore.client import Config
 from botocore.exceptions import BotoCoreError, ClientError
 from mypy_boto3_s3 import S3Client
+from sqlalchemy.engine import create_engine
+from sqlalchemy.orm import sessionmaker
 
-# from sqlalchemy.engine import create_engine
-# from sqlalchemy.orm import sessionmaker
-from common.config import MinioSettings
+from common.config import MinioSettings, PostgreSettings
 
-# , PostgreSettings, RedisSettings
+# RedisSettings
 from common.const import MINIO_BUCKET_BRONZE, MINIO_BUCKET_LANDING, MINIO_BUCKET_SILVER
 from common.exceptions import BucketInitError
 
@@ -35,16 +35,13 @@ class RedisClient:
 # PGSQL
 
 
-"""
-class PostgreClient:
-	def __init__(self, settings: PostgreSettings) -> None:
-		settings = settings
+def get_db_client() -> None:
+	settings = PostgreSettings()
 
-		DB_URL = settings.postgres_sync_url
+	DB_URL = settings.postgres_sync_url
 
-		engine = create_engine(DB_URL, echo=False, pool_size=5, max_overflow=10)
-		session_factory = sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)
-"""
+	engine = create_engine(DB_URL, echo=False, pool_size=5, max_overflow=10)
+	session_factory = sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)
 
 
 # MINIO

@@ -12,3 +12,7 @@ class BucketInitError(Exception):
 
 class FetchError(Exception):
 	pass
+
+
+class DBInitError(Exception):
+	pass

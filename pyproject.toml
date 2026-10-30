@@ -40,5 +40,9 @@ extend-select = ["ANN"]
 [tool.ruff.format]
 indent-style = "tab"
 
+[tool.ty.environment]
+python = ".venv"
+python-version = "3.13"
+
 [tool.ty.rules]
 missing-type-argument = "error"
