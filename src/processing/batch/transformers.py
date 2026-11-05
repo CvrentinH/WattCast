@@ -1,15 +1,19 @@
 from abc import ABC, abstractmethod
 
 from common.bucket_s3 import BucketS3
-from common.clients import get_s3_client
+from common.clients import get_pg_client, get_s3_client
+from common.schema_pg import SchemaPG
 
 
 class BaseTransformer(ABC):
-	def __init__(self, source_name: str, target_name: str) -> None:
-		client = get_s3_client()
-		self.source_bucket = BucketS3(client, source_name)
-		self.target_bucket = BucketS3(client, target_name)
+    def __init__(self, source_name: str, target_name: str, schema_name: str) -> None:
+        s3_client = get_s3_client()
+        self.source_bucket = BucketS3(s3_client, source_name)
+        self.target_bucket = BucketS3(s3_client, target_name)
 
-	@abstractmethod
-	def transform(self) -> None:
-		pass
+        pg_client = get_pg_client()
+        self.schema = SchemaPG(pg_client, schema_name)
+
+    @abstractmethod
+    def transform(self) -> None:
+        pass
