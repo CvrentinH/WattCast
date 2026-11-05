@@ -4,10 +4,9 @@ import boto3
 from botocore.client import Config
 from botocore.exceptions import BotoCoreError, ClientError
 from mypy_boto3_s3 import S3Client
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy.schema import CreateSchema
 
 from common.config import MinioSettings, PostgreSettings
 
@@ -16,8 +15,6 @@ from common.const import (
     MINIO_BUCKET_BRONZE,
     MINIO_BUCKET_LANDING,
     MINIO_BUCKET_SILVER,
-    PG_SCHEMA_BRONZE,
-    PG_SCHEMA_SILVER,
 )
 from common.exceptions import BucketInitError, DBInitError
 
@@ -46,21 +43,21 @@ class RedisClient:
 def get_pg_client() -> sessionmaker[Session]:
     settings = PostgreSettings()
 
-    DB_URL = settings.postgres_sync_url
-    engine = create_engine(DB_URL, echo=False, pool_size=5, max_overflow=10)
-
-    schemas_to_create = [
-        PG_SCHEMA_BRONZE,
-        PG_SCHEMA_SILVER,
-    ]
+    DB_URL = settings.postgres_url
+    engine = create_engine(
+        DB_URL,
+        echo=False,
+        pool_size=5,
+        max_overflow=10,
+        pool_pre_ping=True,
+    )
 
     try:
-        with engine.begin() as conn:
-            for schema in schemas_to_create:
-                conn.execute(CreateSchema(schema, if_not_exists=True))
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
     except SQLAlchemyError as e:
         engine.dispose()
-        raise DBInitError("Impossible de se connecter à PostgreSQL") from e
+        raise DBInitError(f"Impossible de se connecter à PostgreSQL {e}")
 
     return sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)
 

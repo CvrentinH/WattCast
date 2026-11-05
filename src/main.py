@@ -17,20 +17,17 @@ def main() -> None:
     try:
         eco2mix = Eco2Mix(year=2023)
         meteo = OpenMeteo(year=2023, latitude=46, longitude=2)
-        print("fetch de eco2mix")
+        print("fetch eco2mix")
         eco2mix.fetch()
         print(f"saved path : {eco2mix.s3_key}")
-        print("eco2mix dans minio")
-        print("fetch de openmeteo")
+        print("fetch openmeteo")
         meteo.fetch()
         print(f"saved path : {meteo.s3_key}")
-        print("openmeteo dans minio")
 
         # Test Landing RAW to BRONZE
         landing = BronzeTransformer()
-        print("transform raw -> bronze")
-        landing.transform()
-        print("append only dans bronze")
+        print("transform raw -> bronze and append in the database")
+        landing.run()
 
     except PipelineError as e:
         raise PipelineError(f"Pipeline failed : {e}")

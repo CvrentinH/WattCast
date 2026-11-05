@@ -16,7 +16,7 @@ class BronzeTransformer(BaseTransformer):
 
             body = self.source_bucket.read(key)
             path = PurePosixPath(key.lower())
-            if path.suffix != ".csv" and path.suffix != ".zip":
+            if path.suffix not in {".csv", ".zip"}:
                 raise ValueError(f"Invalid suffix type '{path.suffix}'")
 
             if path.suffix == ".zip":
@@ -29,3 +29,7 @@ class BronzeTransformer(BaseTransformer):
         """
         mettre dans la table append-only les métadonnées de la table bronze des fichiers donnés + le body en JSON
         """
+
+    def run(self) -> None:
+        self.transform()
+        self.ingest_into_table()
