@@ -15,5 +15,9 @@ class BaseTransformer(ABC):
         self.schema = SchemaPG(pg_client, schema_name)
 
     @abstractmethod
-    def transform(self) -> None:
+    def transform(self) -> list[tuple[str, str]]:
+        pass
+
+    @abstractmethod
+    def ingest_into_table(self, transformed_files: list[tuple[str, str]]) -> None:
         pass

@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import BigInteger, DateTime, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from src.common.const import PG_SCHEMA_BRONZE
+from common.const import PG_SCHEMA_BRONZE
 
 
 class Base(DeclarativeBase):
@@ -12,7 +12,7 @@ class Base(DeclarativeBase):
 
 class BronzeBatch(Base):
     __tablename__ = "bronze_batch"
-    __table_args__ = {"schema": PG_SCHEMA_BRONZE}
+    __table_args__ = {"schema": PG_SCHEMA_BRONZE}  # noqa : RUF012
 
     ingestion_id: Mapped[int] = mapped_column(
         BigInteger,

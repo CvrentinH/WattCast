@@ -4,8 +4,7 @@ import boto3
 from botocore.client import Config
 from botocore.exceptions import BotoCoreError, ClientError
 from mypy_boto3_s3 import S3Client
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from common.config import MinioSettings, PostgreSettings
@@ -17,6 +16,7 @@ from common.const import (
     MINIO_BUCKET_SILVER,
 )
 from common.exceptions import BucketInitError, DBInitError
+from common.migrations import run_database_migrations
 
 # REDIS
 
@@ -53,11 +53,10 @@ def get_pg_client() -> sessionmaker[Session]:
     )
 
     try:
-        with engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
-    except SQLAlchemyError as e:
+        run_database_migrations()
+    except DBInitError as e:
         engine.dispose()
-        raise DBInitError(f"Impossible de se connecter à PostgreSQL {e}")
+        raise DBInitError(f"Unable to connect to PostgreSQL {e}")
 
     return sessionmaker(bind=engine, expire_on_commit=False, autoflush=False)
 
@@ -91,7 +90,7 @@ def get_s3_client() -> S3Client:
     try:
         response = client.list_buckets()
     except (ClientError, BotoCoreError) as e:
-        raise BucketInitError("Impossible de lister les buckets MinIO") from e
+        raise BucketInitError(f"Unable to list MinIO buckets {e}")
 
     existing_buckets = {b["Name"] for b in response.get("Buckets", [])}
 
