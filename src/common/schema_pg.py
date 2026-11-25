@@ -38,7 +38,22 @@ class SchemaPG:
             db.refresh(model)
             return model
 
-    def get_by_id(self, model_class: type[ModelT], record_id: object) -> ModelT | None:
+    def create_many(self, models: Iterable[ModelT]) -> list[ModelT]:
+        models = list(models)
+
+        if not models:
+            return []
+
+        with self.session() as db:
+            db.add_all(models)
+            db.flush()
+
+            for model in models:
+                db.refresh(model)
+
+            return models
+
+    def get_by_id(self, model_class: type[ModelT], record_id: int) -> ModelT | None:
         with self.session() as db:
             return db.get(model_class, record_id)
 
@@ -56,21 +71,6 @@ class SchemaPG:
                 query = query.limit(limit)
             return query.all()
 
-    def append_many(self, models: Iterable[ModelT]) -> list[ModelT]:
-        models = list(models)
-
-        if not models:
-            return []
-
-        with self.session() as db:
-            db.add_all(models)
-            db.flush()
-
-            for model in models:
-                db.refresh(model)
-
-            return models
-
     def update(self, model: ModelT, values: dict[str, object]) -> ModelT:
         with self.session() as db:
             merged = db.merge(model)
@@ -83,7 +83,7 @@ class SchemaPG:
     def update_by_id(
         self,
         model_class: type[ModelT],
-        record_id: object,
+        record_id: int,
         values: dict[str, object],
     ) -> ModelT | None:
         with self.session() as db:
@@ -101,7 +101,7 @@ class SchemaPG:
             merged = db.merge(model)
             db.delete(merged)
 
-    def delete_by_id(self, model_class: type[ModelT], record_id: object) -> bool:
+    def delete_by_id(self, model_class: type[ModelT], record_id: int) -> bool:
         with self.session() as db:
             record = db.get(model_class, record_id)
             if record is None:

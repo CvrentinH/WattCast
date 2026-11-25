@@ -10,7 +10,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class BronzeBatch(Base):
+class Bronze(Base):
     __tablename__ = "bronze_batch"
     __table_args__ = {"schema": PG_SCHEMA_BRONZE}  # noqa : RUF012
 

@@ -3,7 +3,7 @@ from pathlib import PurePosixPath
 
 from common.const import MINIO_BUCKET_BRONZE, MINIO_BUCKET_LANDING, PG_SCHEMA_BRONZE
 from processing.batch.file_utils import unzip, xls_to_csv
-from processing.batch.models import BronzeBatch
+from processing.batch.models import Bronze
 from processing.batch.transformers import BaseTransformer
 
 
@@ -41,17 +41,17 @@ class BronzeTransformer(BaseTransformer):
             raise ValueError("transformed_files is empty")
 
         ingested_at = datetime.now(UTC)
-        batches: list[BronzeBatch] = []
+        batches: list[Bronze] = []
 
         for source_file, object_key in transformed_files:
-            batch = BronzeBatch(
+            batch = Bronze(
                 ingested_at=ingested_at,
                 source_file=source_file,
                 object_key=object_key,
             )
             batches.append(batch)
 
-        self.schema.append_many(batches)
+        self.schema.create_many(batches)
 
     def run(self) -> None:
         transformed_files = self.transform()

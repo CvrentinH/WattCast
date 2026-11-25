@@ -4,7 +4,8 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from common.config import PostgreSettings
-from processing.batch.models import Base
+from common.const import PG_SCHEMA_BRONZE
+from processing.batch.models import Bronze
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -19,12 +20,25 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+target_metadata = Bronze.metadata
+SCHEMAS = {PG_SCHEMA_BRONZE}
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+
+def include_name(
+    name: str | None,
+    type_: str,
+    _parent_names: object,
+    /,
+) -> bool:
+    if type_ == "schema":
+        return name in SCHEMAS
+    return True
 
 
 def run_migrations_offline() -> None:
@@ -45,7 +59,6 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        include_schemas=True,
     )
 
     with context.begin_transaction():
@@ -68,6 +81,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             include_schemas=True,
+            include_name=include_name,
         )
 
         with context.begin_transaction():
