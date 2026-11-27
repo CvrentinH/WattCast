@@ -1,18 +1,22 @@
 class PipelineError(Exception):
-	pass
+    pass
 
 
 class StorageError(Exception):
-	pass
+    pass
 
 
 class BucketInitError(Exception):
-	pass
+    pass
 
 
 class FetchError(Exception):
-	pass
+    pass
 
 
 class DBInitError(Exception):
-	pass
+    pass
+
+
+class DBSessionError(Exception):
+    pass
